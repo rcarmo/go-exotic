@@ -14,7 +14,7 @@
 | --- | --- | --- |
 | Domain model | `internal/exotic` | Devices, layer shards, domain validation |
 | CLI | `cmd/go-exotic` | Human-facing entrypoints and smoke commands |
-| Runtime adapter | `internal/runtime` | Minimal interface for future `go-pherence` model loading/generation adapter |
+| Runtime adapter | `internal/runtime` | Minimal `go-pherence` adapter for metadata, tokenization, local full-model generation, and future shard execution contract |
 | Cluster membership | `internal/cluster` | Peer identity skeleton, future discovery, heartbeat, stale-peer eviction |
 | Protocol | `internal/protocol` | Initial DTOs for capabilities and placement previews; future shard execution/token streaming |
 | Placement | `internal/placement` | Deterministic baseline planner, contiguous coverage validation, future exo-style policies |

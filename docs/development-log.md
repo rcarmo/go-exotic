@@ -29,3 +29,9 @@
 - Hardened the memory-weighted shard planner for edge cases: too many devices for layers, NaN/Inf/negative memory, duplicate device IDs, and total memory overflow.
 - Added exact plan validation into planner output and table-driven malformed input tests.
 - Added serializable `placement.Plan` plus stable JSON export and `go-exotic -json` CLI output.
+
+## Session 6: Minimal go-pherence runtime adapter
+
+- Expanded `internal/runtime` with metadata, tokenization, generation, and future shard execution contracts.
+- Added `PherenceAdapter`, a local-only adapter over `go-pherence/model.LoadLlama`, tokenizer encode, and full-model `Generate`.
+- Added validation tests for empty paths, negative token budgets, cancelled contexts, and interface conformance.

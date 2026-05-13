@@ -22,6 +22,7 @@ Implemented:
 - deterministic memory-weighted layer-shard planner
 - minimal CLI for placement preview
 - initial docs/tests/Makefile following `go-pherence` module patterns
+- local-only `go-pherence` runtime adapter interface for metadata/tokenization/generation
 
 Planned next:
 

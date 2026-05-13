@@ -36,3 +36,7 @@ The initial cluster transport is HTTP over LAN. This is deliberately simpler tha
 - `make check` must pass after every code batch.
 - Runtime behavior changes need focused smoke commands.
 - Follow-up commits include `Signed-off-by: Rui Carmo <rui.carmo@gmail.com>`.
+
+## Current cluster validation
+
+The first integration test runs multiple in-process peer capabilities through the HTTP placement preview endpoint and validates route construction. Remote shard execution remains disabled.

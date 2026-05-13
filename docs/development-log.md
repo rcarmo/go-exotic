@@ -86,3 +86,9 @@
 - Added `internal/router` with route construction from a validated placement plan and current peer snapshot.
 - Routing validates peers, rejects duplicate/missing peer IDs, keeps output ordered by layer range, and checks `context.Context` for cancellation before and during route construction.
 - Added tests for deterministic route output, malformed route inputs, and cancellation propagation.
+
+## Session 15: In-process multi-node integration test
+
+- Added an in-process multi-node integration test using `httptest` and two local peer capabilities.
+- The test exercises `/placement/preview`, validates the returned shard plan, and builds routes against the peer snapshot.
+- This closes the first cluster transport phase without enabling remote shard execution.

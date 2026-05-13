@@ -35,3 +35,10 @@
 - Expanded `internal/runtime` with metadata, tokenization, generation, and future shard execution contracts.
 - Added `PherenceAdapter`, a local-only adapter over `go-pherence/model.LoadLlama`, tokenizer encode, and full-model `Generate`.
 - Added validation tests for empty paths, negative token budgets, cancelled contexts, and interface conformance.
+
+## Session 7: Local runtime smoke command
+
+- Added CLI subcommands: `plan`, `run`, plus explicit disabled placeholders for `serve` and `peers`.
+- Added `go-exotic run` as a local-only `go-pherence` runtime smoke command.
+- Fixed the runtime adapter to load `tokenizer.json` explicitly instead of assuming `LoadLlama` populates `Tok`.
+- Smoke passed with `../go-pherence/models/smollm2-135m` and a one-token budget.

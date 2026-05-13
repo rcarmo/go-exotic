@@ -3,7 +3,9 @@ package runtime
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 
+	"github.com/rcarmo/go-pherence/loader/tokenizer"
 	pherencemodel "github.com/rcarmo/go-pherence/model"
 )
 
@@ -28,14 +30,11 @@ func (PherenceAdapter) Tokenize(ctx context.Context, modelPath, text string) ([]
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	m, err := loadLocalModel(modelPath)
+	tok, err := loadTokenizer(modelPath)
 	if err != nil {
 		return nil, err
 	}
-	if m.Tok == nil {
-		return nil, fmt.Errorf("model %s has no tokenizer", modelPath)
-	}
-	return m.Tok.Encode(text), nil
+	return tok.Encode(text), nil
 }
 
 func (PherenceAdapter) Generate(ctx context.Context, modelPath, prompt string, maxTokens int) ([]int, error) {
@@ -49,10 +48,11 @@ func (PherenceAdapter) Generate(ctx context.Context, modelPath, prompt string, m
 	if err != nil {
 		return nil, err
 	}
-	if m.Tok == nil {
-		return nil, fmt.Errorf("model %s has no tokenizer", modelPath)
+	tok, err := loadTokenizer(modelPath)
+	if err != nil {
+		return nil, err
 	}
-	tokens := m.Tok.Encode(prompt)
+	tokens := tok.Encode(prompt)
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -64,4 +64,11 @@ func loadLocalModel(modelPath string) (*pherencemodel.LlamaModel, error) {
 		return nil, fmt.Errorf("empty model path")
 	}
 	return pherencemodel.LoadLlama(modelPath)
+}
+
+func loadTokenizer(modelPath string) (*tokenizer.Tokenizer, error) {
+	if modelPath == "" {
+		return nil, fmt.Errorf("empty model path")
+	}
+	return tokenizer.Load(filepath.Join(modelPath, "tokenizer.json"))
 }

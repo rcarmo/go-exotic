@@ -23,6 +23,7 @@ Implemented:
 - minimal CLI for placement preview
 - initial docs/tests/Makefile following `go-pherence` module patterns
 - local-only `go-pherence` runtime adapter interface for metadata/tokenization/generation
+- local runtime smoke command: `go-exotic run`
 
 Planned next:
 
@@ -42,8 +43,9 @@ make run LAYERS=4
 Equivalent direct command:
 
 ```bash
-go run ./cmd/go-exotic -layers 4
-go run ./cmd/go-exotic -layers 4 -json
+go run ./cmd/go-exotic plan -layers 4
+go run ./cmd/go-exotic plan -layers 4 -json
+go run ./cmd/go-exotic run -model ../go-pherence/models/smollm2-135m -prompt "Hello" -tokens 1
 ```
 
 ## Architecture

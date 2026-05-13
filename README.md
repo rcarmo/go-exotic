@@ -50,7 +50,7 @@ See [`docs/architecture.md`](docs/architecture.md).
 
 ## exo reference
 
-See [`docs/reference-exo.md`](docs/reference-exo.md). The reference checkout is deliberately kept outside this module.
+See [`docs/reference-exo.md`](docs/reference-exo.md) and [`docs/exo-reference-map.md`](docs/exo-reference-map.md). The reference checkout is deliberately kept outside this module.
 
 ## Commit policy
 

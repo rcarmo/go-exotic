@@ -11,3 +11,8 @@
 - Added a `go-pherence`-style Makefile with workspace temp dirs and `fmt`, `test`, `vet`, `check`, and `run` targets.
 - Added `.gitignore`, architecture notes, and expanded README structure.
 - Established signed-off commit policy for follow-up commits.
+
+## Session 3: exo reference map
+
+- Read upstream exo master, worker, runner, download, routing, and shared type surfaces under `/workspace/references/exo/src/exo`.
+- Added `docs/exo-reference-map.md` summarizing upstream architecture, Go-facing glossary, and deliberate divergences for `go-pherence` integration.

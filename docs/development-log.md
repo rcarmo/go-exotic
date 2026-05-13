@@ -61,3 +61,10 @@
 - Audited CLI/server output and made `serve` quiet by default.
 - Added `serve -verbose` for structured JSON diagnostics via `log/slog`.
 - Verified default serve mode emits no stderr startup diagnostics while `/health` remains available.
+
+
+## Session 11: Initial cluster transport decision
+
+- Chose HTTP over LAN as the initial cluster transport before reproducing upstream exo's richer discovery/routing surfaces.
+- Added peer identity/capability skeleton in `internal/cluster` with validation for peer ID, HTTP address, transport, and device capability.
+- Added tests for local peer capability exchange and malformed peer rejection.

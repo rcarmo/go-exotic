@@ -27,6 +27,10 @@
 4. Simulate multiple workers in-process before adding LAN transport.
 5. Compare distributed output against local full-model `go-pherence` output before enabling networked generation.
 
+## Transport decision
+
+The initial cluster transport is HTTP over LAN. This is deliberately simpler than upstream exo routing/discovery internals and gives `go-exotic` a stable contract for health, capabilities, placement previews, and future shard execution before exploring richer transports. UDP/mDNS/gRPC/exotic transports are deferred until the in-process and HTTP paths are validated.
+
 ## Validation baseline
 
 - `make check` must pass after every code batch.

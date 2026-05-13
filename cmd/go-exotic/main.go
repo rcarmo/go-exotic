@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
@@ -88,17 +90,27 @@ func runPeers(args []string) {
 func runServe(args []string) {
 	fs := flag.NewFlagSet("serve", flag.ExitOnError)
 	addr := fs.String("addr", "127.0.0.1:8089", "HTTP listen address")
+	verbose := fs.Bool("verbose", false, "enable structured diagnostic logging")
 	_ = fs.Parse(args)
 	if strings.TrimSpace(*addr) == "" {
 		fmt.Fprintln(os.Stderr, "empty listen address")
 		os.Exit(2)
 	}
+	logger := newLogger(*verbose)
 	srv := &http.Server{Addr: *addr, Handler: server.New(localCapabilities()).Handler(), ReadHeaderTimeout: 5 * time.Second}
-	fmt.Fprintf(os.Stderr, "go-exotic listening on http://%s (distributed generation disabled)\n", *addr)
+	logger.Info("serve_start", "addr", *addr, "distributed_generation", "disabled")
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		logger.Error("serve_error", "error", err)
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+func newLogger(verbose bool) *slog.Logger {
+	if !verbose {
+		return slog.New(slog.NewTextHandler(io.Discard, nil))
+	}
+	return slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
 }
 
 func localCapabilities() []protocol.Capability {

@@ -55,3 +55,9 @@
 - Added `serve` CLI with an HTTP skeleton: `/health`, `/capabilities`, and `/placement/preview`.
 - Kept distributed generation disabled; `serve` only exposes local capability and placement preview surfaces.
 - Added HTTP handler tests and smoke-tested health/placement endpoints with a local server.
+
+## Session 10: Quiet structured serve logging
+
+- Audited CLI/server output and made `serve` quiet by default.
+- Added `serve -verbose` for structured JSON diagnostics via `log/slog`.
+- Verified default serve mode emits no stderr startup diagnostics while `/health` remains available.

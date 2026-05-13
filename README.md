@@ -24,6 +24,7 @@ Implemented:
 - initial docs/tests/Makefile following `go-pherence` module patterns
 - local-only `go-pherence` runtime adapter interface for metadata/tokenization/generation
 - local runtime smoke command: `go-exotic run`
+- CLI/API skeleton: `plan`, `run`, `peers`, `serve`, `/health`, `/capabilities`, `/placement/preview`
 
 Planned next:
 
@@ -46,6 +47,8 @@ Equivalent direct command:
 go run ./cmd/go-exotic plan -layers 4
 go run ./cmd/go-exotic plan -layers 4 -json
 go run ./cmd/go-exotic run -model ../go-pherence/models/smollm2-135m -prompt "Hello" -tokens 1
+go run ./cmd/go-exotic peers -json
+go run ./cmd/go-exotic serve -addr 127.0.0.1:8089
 ```
 
 ## Architecture

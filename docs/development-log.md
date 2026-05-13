@@ -48,3 +48,10 @@
 - Audited the new local `go-pherence` adapter for malformed path and metadata edges.
 - Added model path trimming/rejection for whitespace-only paths across metadata, tokenization, generation, model loading, and tokenizer loading.
 - Added metadata validation for model path, layer count, hidden size, and vocab size before exposing runtime metadata to placement/CLI callers.
+
+## Session 9: CLI and HTTP API skeleton
+
+- Added `peers` CLI for local capability inspection, with text and JSON output.
+- Added `serve` CLI with an HTTP skeleton: `/health`, `/capabilities`, and `/placement/preview`.
+- Kept distributed generation disabled; `serve` only exposes local capability and placement preview surfaces.
+- Added HTTP handler tests and smoke-tested health/placement endpoints with a local server.

@@ -1,0 +1,54 @@
+package server
+
+import (
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/rcarmo/go-exotic/internal/exotic"
+	"github.com/rcarmo/go-exotic/internal/protocol"
+)
+
+func TestServerHealthCapabilitiesAndPlacement(t *testing.T) {
+	s := New([]protocol.Capability{{PeerID: "local", Device: exotic.Device{ID: "local", MemoryGB: 1, Backend: "go-pherence"}}})
+	h := s.Handler()
+
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/health", nil))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("health status=%d body=%s", rr.Code, rr.Body.String())
+	}
+
+	rr = httptest.NewRecorder()
+	h.ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/capabilities", nil))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("capabilities status=%d body=%s", rr.Code, rr.Body.String())
+	}
+	var caps protocol.CapabilitiesResponse
+	if err := json.Unmarshal(rr.Body.Bytes(), &caps); err != nil || len(caps.Capabilities) != 1 {
+		t.Fatalf("capabilities decode=%v caps=%+v", err, caps)
+	}
+
+	rr = httptest.NewRecorder()
+	h.ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/placement/preview?layers=4&model=test", nil))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("placement status=%d body=%s", rr.Code, rr.Body.String())
+	}
+	var preview protocol.PlacementPreview
+	if err := json.Unmarshal(rr.Body.Bytes(), &preview); err != nil {
+		t.Fatalf("preview decode: %v", err)
+	}
+	if preview.Layers != 4 || len(preview.Shards) != 1 || preview.Shards[0].EndLayer != 3 {
+		t.Fatalf("unexpected preview: %+v", preview)
+	}
+}
+
+func TestServerRejectsMalformedPlacementRequest(t *testing.T) {
+	s := New([]protocol.Capability{{PeerID: "local", Device: exotic.Device{ID: "local", MemoryGB: 1}}})
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/placement/preview?layers=bad", nil))
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("status=%d want 400", rr.Code)
+	}
+}

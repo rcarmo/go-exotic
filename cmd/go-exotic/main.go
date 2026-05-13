@@ -2,15 +2,19 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/rcarmo/go-exotic/internal/exotic"
 	"github.com/rcarmo/go-exotic/internal/placement"
+	"github.com/rcarmo/go-exotic/internal/protocol"
 	exoticruntime "github.com/rcarmo/go-exotic/internal/runtime"
+	"github.com/rcarmo/go-exotic/internal/server"
 )
 
 func main() {
@@ -22,9 +26,12 @@ func main() {
 		case "run":
 			runLocal(os.Args[2:])
 			return
-		case "serve", "peers":
-			fmt.Fprintf(os.Stderr, "%s is not implemented; distributed execution is disabled\n", os.Args[1])
-			os.Exit(2)
+		case "serve":
+			runServe(os.Args[2:])
+			return
+		case "peers":
+			runPeers(os.Args[2:])
+			return
 		}
 	}
 	// Backward-compatible default: placement preview.
@@ -57,6 +64,51 @@ func runPlan(args []string) {
 	for _, shard := range plan.Shards {
 		fmt.Printf("%s: layers %d-%d\n", shard.DeviceID, shard.StartLayer, shard.EndLayer)
 	}
+}
+
+func runPeers(args []string) {
+	fs := flag.NewFlagSet("peers", flag.ExitOnError)
+	jsonOut := fs.Bool("json", false, "print peers as JSON")
+	_ = fs.Parse(args)
+	caps := localCapabilities()
+	if *jsonOut {
+		data, err := json.MarshalIndent(protocol.CapabilitiesResponse{Capabilities: caps}, "", "  ")
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		fmt.Println(string(data))
+		return
+	}
+	for _, cap := range caps {
+		fmt.Printf("%s: backend=%s memory=%.2fGB\n", cap.PeerID, cap.Device.Backend, cap.Device.MemoryGB)
+	}
+}
+
+func runServe(args []string) {
+	fs := flag.NewFlagSet("serve", flag.ExitOnError)
+	addr := fs.String("addr", "127.0.0.1:8089", "HTTP listen address")
+	_ = fs.Parse(args)
+	if strings.TrimSpace(*addr) == "" {
+		fmt.Fprintln(os.Stderr, "empty listen address")
+		os.Exit(2)
+	}
+	srv := &http.Server{Addr: *addr, Handler: server.New(localCapabilities()).Handler(), ReadHeaderTimeout: 5 * time.Second}
+	fmt.Fprintf(os.Stderr, "go-exotic listening on http://%s (distributed generation disabled)\n", *addr)
+	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func localCapabilities() []protocol.Capability {
+	return []protocol.Capability{{
+		PeerID: "local",
+		Device: exotic.Device{ID: "local", MemoryGB: 1, Backend: "go-pherence"},
+		Metadata: map[string]string{
+			"mode": "local-only",
+		},
+	}}
 }
 
 func runLocal(args []string) {

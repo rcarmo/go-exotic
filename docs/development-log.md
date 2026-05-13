@@ -98,3 +98,9 @@
 - Audited the route-building path after adding in-process integration coverage.
 - Added explicit `no peers` and `peers fewer than shards` validation before per-shard routing.
 - Extended malformed route tests to cover no-peer, fewer-peer, and missing-peer cases distinctly.
+
+## Session 17: Documentation sweep
+
+- Refreshed README, architecture, and exo reference docs after completing placement hardening, runtime adapter, CLI/API skeleton, cluster registry, routing, and in-process integration tests.
+- Documented current implemented/deferred surfaces and quiet/verbose serve behavior.
+- Reaffirmed that remote shard execution and OpenAI-compatible generation remain deferred.

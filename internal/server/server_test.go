@@ -44,6 +44,24 @@ func TestServerHealthCapabilitiesAndPlacement(t *testing.T) {
 	}
 }
 
+func TestServerCopiesCapabilityMetadata(t *testing.T) {
+	caps := []protocol.Capability{{PeerID: "local", Device: exotic.Device{ID: "local", MemoryGB: 1}, Metadata: map[string]string{"mode": "local"}}}
+	s := New(caps)
+	caps[0].Metadata["mode"] = "mutated"
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/capabilities", nil))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", rr.Code, rr.Body.String())
+	}
+	var got protocol.CapabilitiesResponse
+	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if got.Capabilities[0].Metadata["mode"] != "local" {
+		t.Fatalf("server metadata aliases input: %+v", got.Capabilities[0].Metadata)
+	}
+}
+
 func TestServerRejectsMalformedPlacementRequest(t *testing.T) {
 	s := New([]protocol.Capability{{PeerID: "local", Device: exotic.Device{ID: "local", MemoryGB: 1}}})
 	rr := httptest.NewRecorder()

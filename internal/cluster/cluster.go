@@ -2,6 +2,7 @@ package cluster
 
 import (
 	"fmt"
+	"math"
 	"net/url"
 	"strings"
 	"time"
@@ -52,13 +53,13 @@ func (p Peer) Validate() error {
 		return fmt.Errorf("unsupported peer transport %q", p.Transport)
 	}
 	u, err := url.Parse(p.Address)
-	if err != nil || u.Scheme == "" || u.Host == "" {
+	if err != nil || u.Scheme == "" || u.Host == "" || u.Scheme != "http" {
 		return fmt.Errorf("invalid peer address %q", p.Address)
 	}
 	if p.Device.ID == "" {
 		return fmt.Errorf("peer device id is empty")
 	}
-	if p.Device.MemoryGB <= 0 {
+	if p.Device.MemoryGB <= 0 || math.IsNaN(p.Device.MemoryGB) || math.IsInf(p.Device.MemoryGB, 0) {
 		return fmt.Errorf("peer device memory %.2f out of range", p.Device.MemoryGB)
 	}
 	return nil
@@ -67,7 +68,7 @@ func (p Peer) Validate() error {
 func LocalPeer(id, address string, memoryGB float64) (Peer, error) {
 	p := Peer{
 		ID:        strings.TrimSpace(id),
-		Address:   strings.TrimSpace(address),
+		Address:   strings.TrimRight(strings.TrimSpace(address), "/"),
 		Transport: TransportHTTP,
 		Device:    exotic.Device{ID: strings.TrimSpace(id), MemoryGB: memoryGB, Backend: "go-pherence"},
 		LastSeen:  time.Now().UTC(),

@@ -68,3 +68,9 @@
 - Chose HTTP over LAN as the initial cluster transport before reproducing upstream exo's richer discovery/routing surfaces.
 - Added peer identity/capability skeleton in `internal/cluster` with validation for peer ID, HTTP address, transport, and device capability.
 - Added tests for local peer capability exchange and malformed peer rejection.
+
+## Session 12: Cluster/server audit
+
+- Tightened peer validation to require HTTP addresses, reject NaN/Inf memory, and normalize local peer addresses.
+- Added peer validation tests for HTTPS/unsupported transport and malformed memory values.
+- Fixed server capability handling to deep-copy metadata maps on input/output so callers cannot mutate server state through aliases.

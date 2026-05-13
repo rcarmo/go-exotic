@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"math"
 	"testing"
 
 	"github.com/rcarmo/go-exotic/internal/exotic"
@@ -20,15 +21,28 @@ func TestLocalPeerCapability(t *testing.T) {
 	}
 }
 
+func TestLocalPeerNormalizesAddress(t *testing.T) {
+	p, err := LocalPeer(" local ", " http://127.0.0.1:8089/ ", 1)
+	if err != nil {
+		t.Fatalf("LocalPeer: %v", err)
+	}
+	if p.ID != "local" || p.Address != "http://127.0.0.1:8089" {
+		t.Fatalf("unexpected normalized peer: %+v", p)
+	}
+}
+
 func TestPeerValidationRejectsMalformedInputs(t *testing.T) {
 	valid := Peer{ID: "p", Address: "http://127.0.0.1:1", Transport: TransportHTTP, Device: localDevice("p")}
 	cases := []Peer{
 		{},
 		{ID: "p", Address: "", Transport: TransportHTTP, Device: localDevice("p")},
 		{ID: "p", Address: "127.0.0.1:1", Transport: TransportHTTP, Device: localDevice("p")},
+		{ID: "p", Address: "https://127.0.0.1:1", Transport: TransportHTTP, Device: localDevice("p")},
 		{ID: "p", Address: "http://127.0.0.1:1", Transport: "udp", Device: localDevice("p")},
 		{ID: "p", Address: "http://127.0.0.1:1", Transport: TransportHTTP},
 		{ID: "p", Address: "http://127.0.0.1:1", Transport: TransportHTTP, Device: localDevice("p", 0)},
+		{ID: "p", Address: "http://127.0.0.1:1", Transport: TransportHTTP, Device: localDevice("p", math.NaN())},
+		{ID: "p", Address: "http://127.0.0.1:1", Transport: TransportHTTP, Device: localDevice("p", math.Inf(1))},
 	}
 	if err := valid.Validate(); err != nil {
 		t.Fatalf("valid peer rejected: %v", err)

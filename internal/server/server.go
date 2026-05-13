@@ -16,7 +16,11 @@ type Server struct {
 }
 
 func New(capabilities []protocol.Capability) *Server {
-	caps := append([]protocol.Capability(nil), capabilities...)
+	caps := make([]protocol.Capability, 0, len(capabilities))
+	for _, cap := range capabilities {
+		cap.Metadata = cloneMetadata(cap.Metadata)
+		caps = append(caps, cap)
+	}
 	return &Server{capabilities: caps}
 }
 
@@ -41,7 +45,7 @@ func (s *Server) handleCapabilities(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
-	writeJSON(w, http.StatusOK, protocol.CapabilitiesResponse{Capabilities: append([]protocol.Capability(nil), s.capabilities...)})
+	writeJSON(w, http.StatusOK, protocol.CapabilitiesResponse{Capabilities: s.capabilitiesCopy()})
 }
 
 func (s *Server) handlePlacementPreview(w http.ResponseWriter, r *http.Request) {
@@ -65,6 +69,26 @@ func (s *Server) handlePlacementPreview(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	writeJSON(w, http.StatusOK, protocol.PlacementPreview{ModelID: r.URL.Query().Get("model"), Layers: layers, Shards: plan.Shards})
+}
+
+func (s *Server) capabilitiesCopy() []protocol.Capability {
+	caps := make([]protocol.Capability, 0, len(s.capabilities))
+	for _, cap := range s.capabilities {
+		cap.Metadata = cloneMetadata(cap.Metadata)
+		caps = append(caps, cap)
+	}
+	return caps
+}
+
+func cloneMetadata(in map[string]string) map[string]string {
+	if len(in) == 0 {
+		return nil
+	}
+	out := make(map[string]string, len(in))
+	for k, v := range in {
+		out[k] = v
+	}
+	return out
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {

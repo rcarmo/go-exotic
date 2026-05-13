@@ -29,6 +29,29 @@ func TestPherenceAdapterValidation(t *testing.T) {
 	}
 }
 
+func TestRuntimeValidationHelpers(t *testing.T) {
+	if _, err := cleanModelPath(" \t\n"); err == nil {
+		t.Fatal("cleanModelPath accepted whitespace-only path")
+	}
+	if got, err := cleanModelPath(" ./model "); err != nil || got != "./model" {
+		t.Fatalf("cleanModelPath=%q,%v want ./model,nil", got, err)
+	}
+	if err := validateMetadata(Metadata{ModelPath: "m", Layers: 1, HiddenSize: 2, VocabSize: 3}); err != nil {
+		t.Fatalf("validateMetadata: %v", err)
+	}
+	bad := []Metadata{
+		{},
+		{ModelPath: "m", Layers: -1, HiddenSize: 2, VocabSize: 3},
+		{ModelPath: "m", Layers: 1, HiddenSize: 0, VocabSize: 3},
+		{ModelPath: "m", Layers: 1, HiddenSize: 2, VocabSize: 0},
+	}
+	for i, meta := range bad {
+		if err := validateMetadata(meta); err == nil {
+			t.Fatalf("case %d accepted bad metadata: %+v", i, meta)
+		}
+	}
+}
+
 func TestPherenceAdapterImplementsAdapter(t *testing.T) {
 	var _ Adapter = NewPherenceAdapter()
 }

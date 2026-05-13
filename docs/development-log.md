@@ -42,3 +42,9 @@
 - Added `go-exotic run` as a local-only `go-pherence` runtime smoke command.
 - Fixed the runtime adapter to load `tokenizer.json` explicitly instead of assuming `LoadLlama` populates `Tok`.
 - Smoke passed with `../go-pherence/models/smollm2-135m` and a one-token budget.
+
+## Session 8: Runtime adapter audit
+
+- Audited the new local `go-pherence` adapter for malformed path and metadata edges.
+- Added model path trimming/rejection for whitespace-only paths across metadata, tokenization, generation, model loading, and tokenizer loading.
+- Added metadata validation for model path, layer count, hidden size, and vocab size before exposing runtime metadata to placement/CLI callers.

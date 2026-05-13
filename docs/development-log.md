@@ -16,3 +16,10 @@
 
 - Read upstream exo master, worker, runner, download, routing, and shared type surfaces under `/workspace/references/exo/src/exo`.
 - Added `docs/exo-reference-map.md` summarizing upstream architecture, Go-facing glossary, and deliberate divergences for `go-pherence` integration.
+
+## Session 4: Core package skeletons and placement split
+
+- Added initial Phase 2 package skeletons: `internal/cluster`, `internal/placement`, `internal/runtime`, and `internal/protocol`.
+- Kept `internal/exotic` focused on domain types (`Device`, `Shard`) and validation.
+- Moved layer-shard planning into `internal/placement`, added duplicate device rejection and exact contiguous coverage validation.
+- Added package tests for placement malformed inputs and domain shard validation.

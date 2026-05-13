@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/rcarmo/go-exotic/internal/exotic"
+	"github.com/rcarmo/go-exotic/internal/placement"
 )
 
 func main() {
@@ -15,7 +16,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "usage: go-exotic -layers N")
 		os.Exit(2)
 	}
-	plan, err := exotic.PlanLayerShards([]exotic.Device{{ID: "local", MemoryGB: 1, Backend: "go-pherence"}}, *layers)
+	plan, err := placement.PlanLayerShards([]exotic.Device{{ID: "local", MemoryGB: 1, Backend: "go-pherence"}}, *layers)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

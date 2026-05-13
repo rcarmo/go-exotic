@@ -12,12 +12,12 @@
 
 | Area | Package | Responsibility |
 | --- | --- | --- |
-| Domain model | `internal/exotic` | Devices, layer shards, deterministic placement baseline |
+| Domain model | `internal/exotic` | Devices, layer shards, domain validation |
 | CLI | `cmd/go-exotic` | Human-facing entrypoints and smoke commands |
-| Runtime adapter | `internal/runtime` _(planned)_ | `go-pherence` model loading/generation adapter |
-| Cluster membership | `internal/cluster` _(planned)_ | Peer identity, discovery, heartbeat, stale-peer eviction |
-| Protocol | `internal/protocol` _(planned)_ | Wire DTOs for capabilities, shard execution, token streaming |
-| Placement | `internal/placement` _(planned)_ | exo-style placement policies beyond the baseline planner |
+| Runtime adapter | `internal/runtime` | Minimal interface for future `go-pherence` model loading/generation adapter |
+| Cluster membership | `internal/cluster` | Peer identity skeleton, future discovery, heartbeat, stale-peer eviction |
+| Protocol | `internal/protocol` | Initial DTOs for capabilities and placement previews; future shard execution/token streaming |
+| Placement | `internal/placement` | Deterministic baseline planner, contiguous coverage validation, future exo-style policies |
 
 ## Porting model
 

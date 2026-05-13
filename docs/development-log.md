@@ -23,3 +23,9 @@
 - Kept `internal/exotic` focused on domain types (`Device`, `Shard`) and validation.
 - Moved layer-shard planning into `internal/placement`, added duplicate device rejection and exact contiguous coverage validation.
 - Added package tests for placement malformed inputs and domain shard validation.
+
+## Session 5: Placement planner hardening
+
+- Hardened the memory-weighted shard planner for edge cases: too many devices for layers, NaN/Inf/negative memory, duplicate device IDs, and total memory overflow.
+- Added exact plan validation into planner output and table-driven malformed input tests.
+- Added serializable `placement.Plan` plus stable JSON export and `go-exotic -json` CLI output.

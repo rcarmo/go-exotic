@@ -42,6 +42,7 @@ Equivalent direct command:
 
 ```bash
 go run ./cmd/go-exotic -layers 4
+go run ./cmd/go-exotic -layers 4 -json
 ```
 
 ## Architecture

@@ -11,17 +11,27 @@ import (
 
 func main() {
 	layers := flag.Int("layers", 0, "number of model layers to shard")
+	jsonOut := flag.Bool("json", false, "print placement plan as JSON")
 	flag.Parse()
 	if *layers <= 0 {
 		fmt.Fprintln(os.Stderr, "usage: go-exotic -layers N")
 		os.Exit(2)
 	}
-	plan, err := placement.PlanLayerShards([]exotic.Device{{ID: "local", MemoryGB: 1, Backend: "go-pherence"}}, *layers)
+	plan, err := placement.NewPlan([]exotic.Device{{ID: "local", MemoryGB: 1, Backend: "go-pherence"}}, *layers)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	for _, shard := range plan {
+	if *jsonOut {
+		data, err := plan.JSON()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		fmt.Println(string(data))
+		return
+	}
+	for _, shard := range plan.Shards {
 		fmt.Printf("%s: layers %d-%d\n", shard.DeviceID, shard.StartLayer, shard.EndLayer)
 	}
 }

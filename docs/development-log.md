@@ -74,3 +74,9 @@
 - Tightened peer validation to require HTTP addresses, reject NaN/Inf memory, and normalize local peer addresses.
 - Added peer validation tests for HTTPS/unsupported transport and malformed memory values.
 - Fixed server capability handling to deep-copy metadata maps on input/output so callers cannot mutate server state through aliases.
+
+## Session 13: Cluster heartbeat registry
+
+- Added in-memory peer registry for the initial HTTP/LAN cluster transport.
+- Implemented peer upsert, heartbeat refresh, sorted peer snapshots, and stale-peer eviction.
+- Added tests for validation, deterministic snapshots, copy semantics, heartbeat refresh, and stale eviction.

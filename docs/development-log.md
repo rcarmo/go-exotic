@@ -80,3 +80,9 @@
 - Added in-memory peer registry for the initial HTTP/LAN cluster transport.
 - Implemented peer upsert, heartbeat refresh, sorted peer snapshots, and stale-peer eviction.
 - Added tests for validation, deterministic snapshots, copy semantics, heartbeat refresh, and stale eviction.
+
+## Session 14: Request routing skeleton
+
+- Added `internal/router` with route construction from a validated placement plan and current peer snapshot.
+- Routing validates peers, rejects duplicate/missing peer IDs, keeps output ordered by layer range, and checks `context.Context` for cancellation before and during route construction.
+- Added tests for deterministic route output, malformed route inputs, and cancellation propagation.

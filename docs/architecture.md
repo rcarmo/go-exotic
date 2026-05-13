@@ -16,7 +16,7 @@
 | CLI | `cmd/go-exotic` | `plan`, `run`, `peers`, and `serve` entrypoints; distributed generation remains disabled |
 | Runtime adapter | `internal/runtime` | Minimal `go-pherence` adapter for metadata, tokenization, local full-model generation, and future shard execution contract |
 | Cluster membership | `internal/cluster` | Peer identity, local capability exchange, heartbeat refresh, in-memory registry, stale-peer eviction |
-| Protocol/API | `internal/protocol`, `internal/server` | Initial DTOs and HTTP skeleton for health, capabilities, and placement previews; future shard execution/token streaming |
+| Protocol/API/routing | `internal/protocol`, `internal/server`, `internal/router` | Initial DTOs and HTTP skeleton for health, capabilities, placement previews, and route construction; future shard execution/token streaming |
 | Placement | `internal/placement` | Deterministic baseline planner, contiguous coverage validation, future exo-style policies |
 
 ## Porting model

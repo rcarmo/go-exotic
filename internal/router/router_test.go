@@ -33,7 +33,9 @@ func TestBuildRoutesRejectsMalformedInputs(t *testing.T) {
 		{"bad plan", []cluster.Peer{peer}, []exotic.Shard{{DeviceID: "a", StartLayer: 1, EndLayer: 1}}},
 		{"bad peer", []cluster.Peer{{ID: "a"}}, validShard},
 		{"duplicate peer", []cluster.Peer{peer, peer}, validShard},
-		{"missing peer", nil, validShard},
+		{"no peers", nil, validShard},
+		{"fewer peers than shards", []cluster.Peer{peer}, []exotic.Shard{{DeviceID: "a", StartLayer: 0, EndLayer: 0}, {DeviceID: "b", StartLayer: 1, EndLayer: 1}}},
+		{"missing peer", []cluster.Peer{peer}, []exotic.Shard{{DeviceID: "b", StartLayer: 0, EndLayer: 0}}},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

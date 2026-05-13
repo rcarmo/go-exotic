@@ -92,3 +92,9 @@
 - Added an in-process multi-node integration test using `httptest` and two local peer capabilities.
 - The test exercises `/placement/preview`, validates the returned shard plan, and builds routes against the peer snapshot.
 - This closes the first cluster transport phase without enabling remote shard execution.
+
+## Session 16: Router audit
+
+- Audited the route-building path after adding in-process integration coverage.
+- Added explicit `no peers` and `peers fewer than shards` validation before per-shard routing.
+- Extended malformed route tests to cover no-peer, fewer-peer, and missing-peer cases distinctly.

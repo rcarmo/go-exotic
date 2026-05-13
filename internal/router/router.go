@@ -26,6 +26,9 @@ func BuildRoutes(ctx context.Context, peers []cluster.Peer, shards []exotic.Shar
 	if err := placement.ValidatePlan(shards, totalLayers); err != nil {
 		return nil, err
 	}
+	if len(peers) == 0 {
+		return nil, fmt.Errorf("no peers")
+	}
 	peerByID := make(map[string]cluster.Peer, len(peers))
 	for _, peer := range peers {
 		if err := ctx.Err(); err != nil {
@@ -38,6 +41,9 @@ func BuildRoutes(ctx context.Context, peers []cluster.Peer, shards []exotic.Shar
 			return nil, fmt.Errorf("duplicate peer id %q", peer.ID)
 		}
 		peerByID[peer.ID] = peer
+	}
+	if len(peerByID) < len(shards) {
+		return nil, fmt.Errorf("peers=%d fewer than shards=%d", len(peerByID), len(shards))
 	}
 	routes := make([]Route, 0, len(shards))
 	for _, shard := range shards {

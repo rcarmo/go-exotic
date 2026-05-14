@@ -59,6 +59,13 @@ func TestSimulatorRejectsMalformedInputs(t *testing.T) {
 	if _, err := NewSimulator(map[string]Worker{"a": nil}); err == nil {
 		t.Fatal("accepted nil worker")
 	}
+	if _, err := NewSimulator(map[string]Worker{"a": WorkerFunc(nil)}); err == nil {
+		t.Fatal("accepted nil WorkerFunc")
+	}
+	var nilLayerWorker *LayerExecutorWorker
+	if _, err := NewSimulator(map[string]Worker{"a": nilLayerWorker}); err == nil {
+		t.Fatal("accepted nil pointer worker")
+	}
 	if _, err := (*Simulator)(nil).Execute(context.Background(), nil, protocol.ShardExecutionRequest{}, 1); err == nil {
 		t.Fatal("nil simulator accepted")
 	}

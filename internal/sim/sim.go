@@ -3,6 +3,7 @@ package sim
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"sort"
 
 	"github.com/rcarmo/go-exotic/internal/cluster"
@@ -38,7 +39,7 @@ func NewSimulator(workers map[string]Worker) (*Simulator, error) {
 		if id == "" {
 			return nil, fmt.Errorf("empty worker id")
 		}
-		if worker == nil {
+		if isNilWorker(worker) {
 			return nil, fmt.Errorf("nil worker %q", id)
 		}
 		copyWorkers[id] = worker
@@ -89,6 +90,19 @@ func (s *Simulator) Execute(ctx context.Context, routes []router.Route, initial 
 		req.Activation = append([]float32(nil), resp.Activation...)
 	}
 	return resp, nil
+}
+
+func isNilWorker(worker Worker) bool {
+	if worker == nil {
+		return true
+	}
+	v := reflect.ValueOf(worker)
+	switch v.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
+		return v.IsNil()
+	default:
+		return false
+	}
 }
 
 func PeerWorkers(peers []cluster.Peer, worker Worker) map[string]Worker {

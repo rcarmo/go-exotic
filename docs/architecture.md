@@ -19,7 +19,7 @@
 | Runtime adapter | `internal/runtime` | Minimal `go-pherence` adapter for metadata, tokenization, local full-model generation, and future shard execution contract |
 | Protocol/API | `internal/protocol`, `internal/server` | DTOs and HTTP skeleton for health, capabilities, and placement previews |
 | CLI | `cmd/go-exotic` | `plan`, `run`, `peers`, and `serve`; distributed generation remains disabled |
-| Integration tests | `internal/integration` | In-process multi-node placement/routing validation |
+| Simulation/integration | `internal/sim`, `internal/integration` | In-process routed shard execution harness plus multi-node placement/routing validation |
 
 ## Porting model
 
@@ -60,3 +60,7 @@ The future `LayerShardExecutor` shape uses `protocol.ShardExecutionRequest` and 
 - `make check` must pass after every code batch.
 - Runtime behavior changes need focused smoke commands.
 - Follow-up commits include `Signed-off-by: Rui Carmo <rui.carmo@gmail.com>`.
+
+## Single-host simulation
+
+`internal/sim` executes routed shard requests sequentially in one process. It is the first distributed-inference harness and deliberately uses `protocol.ShardExecutionRequest`/`Response` without any remote transport. Real layer execution and tensor serialization are still pending.

@@ -110,3 +110,9 @@
 - Added protocol DTOs for `ShardExecutionRequest` and `ShardExecutionResponse` around explicit layer ranges, positions, hidden sizes, and activation vectors.
 - Added validation and JSON round-trip tests for malformed shard execution requests/responses.
 - Updated the runtime `LayerShardExecutor` hook to use the protocol DTOs while remote execution remains disabled.
+
+## Session 19: Single-host simulation harness
+
+- Added `internal/sim`, a sequential in-process multi-worker harness over routed shard execution requests.
+- The simulator validates request/response metadata, propagates cancellation, copies activation outputs between routes, and keeps execution local-only.
+- Added tests for successful two-shard execution, malformed simulator inputs, worker errors, and cancellation propagation.

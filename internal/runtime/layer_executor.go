@@ -33,6 +33,9 @@ func (e *PherenceLayerExecutor) ExecuteLayerRange(ctx context.Context, req proto
 	if err := ctx.Err(); err != nil {
 		return protocol.ShardExecutionResponse{}, err
 	}
+	if totalLayers != e.model.Config.NumLayers {
+		return protocol.ShardExecutionResponse{}, fmt.Errorf("total layers=%d, model layers=%d", totalLayers, e.model.Config.NumLayers)
+	}
 	if err := req.Validate(totalLayers); err != nil {
 		return protocol.ShardExecutionResponse{}, err
 	}

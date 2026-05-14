@@ -145,3 +145,9 @@
 - Inspected `go-pherence/model.ForwardLayer` as the smallest safe local hook for layer-range execution over float activations and caller-owned KV caches.
 - Added `runtime.LayerRangeExecutor` and a local `PherenceLayerExecutor` wrapper that executes a validated shard range in-process with cancellation checks before each layer.
 - Added validation tests for nil/invalid models, context cancellation, malformed hidden size, KV cache shape, and invalid zero-layer ranges.
+
+## Session 25: Layer executor audit
+
+- Audited the new local `PherenceLayerExecutor` for mismatches between request validation and loaded model state.
+- Added an explicit check that shard request `totalLayers` matches the loaded model's layer count before validating/executing a range.
+- Split regression coverage so layer-count mismatch and KV-cache shape validation are both exercised distinctly.

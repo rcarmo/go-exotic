@@ -35,6 +35,18 @@ func TestPherenceLayerExecutorValidation(t *testing.T) {
 	req.HiddenSize = 2
 	req.Activation = []float32{1, 2}
 	if _, err := exec.ExecuteLayerRange(context.Background(), req, nil, nil, 1); err == nil {
+		t.Fatal("accepted total layer mismatch")
+	}
+}
+
+func TestPherenceLayerExecutorRejectsKVShapeAfterLayerCountMatch(t *testing.T) {
+	model := &pherencemodel.LlamaModel{Config: pherencemodel.LlamaConfig{HiddenSize: 2, NumLayers: 1}, Layers: []pherencemodel.LlamaLayer{{}}}
+	exec, err := NewPherenceLayerExecutor(model)
+	if err != nil {
+		t.Fatalf("NewPherenceLayerExecutor: %v", err)
+	}
+	req := protocol.ShardExecutionRequest{SessionID: "s", RequestID: "r", ModelID: "m", Shard: exotic.Shard{DeviceID: "p", StartLayer: 0, EndLayer: 0}, Position: 0, HiddenSize: 2, Activation: []float32{1, 2}}
+	if _, err := exec.ExecuteLayerRange(context.Background(), req, nil, nil, 1); err == nil {
 		t.Fatal("accepted bad KV cache shape")
 	}
 }

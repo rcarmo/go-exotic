@@ -76,3 +76,7 @@ The current parity gate compares the `go-exotic` local runtime adapter against d
 ## Initial plan closeout
 
 The initial development plan is complete through synthetic N-shard token flow and local adapter parity against direct `go-pherence` generation. The next implementation phase is to replace synthetic workers with real layer-shard execution and then compare distributed shard output against full-model `go-pherence` output.
+
+## Real layer execution hook
+
+Phase 7 starts with `go-pherence/model.ForwardLayer` as the smallest safe local API for layer-range execution. `runtime.PherenceLayerExecutor` wraps this hook behind `LayerRangeExecutor`, validates request/model/KV-cache shape, copies activation inputs/outputs, and checks cancellation before each layer. This remains in-process only; remote HTTP shard execution is still disabled.

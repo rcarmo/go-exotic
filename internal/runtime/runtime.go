@@ -28,3 +28,10 @@ type Adapter interface {
 type LayerShardExecutor interface {
 	ExecuteLayerShard(ctx context.Context, request protocol.ShardExecutionRequest) (protocol.ShardExecutionResponse, error)
 }
+
+// LayerRangeExecutor is the in-process API used before remote shard transport.
+// It executes [startLayer,endLayer] over one activation using already-loaded
+// local model state and caller-owned KV caches.
+type LayerRangeExecutor interface {
+	ExecuteLayerRange(ctx context.Context, request protocol.ShardExecutionRequest, kvCacheK, kvCacheV [][]float32, totalLayers int) (protocol.ShardExecutionResponse, error)
+}

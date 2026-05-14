@@ -139,3 +139,9 @@
 - Re-ran `make check` after completing the initial go-exotic plan from project setup through Phase 6 simulation/parity scaffolding.
 - Current implementation covers reference mapping, package boundaries, hardened placement, local go-pherence adapter, CLI/API skeleton, HTTP cluster surfaces, routing, in-process simulation, activation serialization, synthetic N-shard token flow, and local adapter parity against direct go-pherence generation.
 - Remaining work moves into a follow-up implementation plan: replacing synthetic shard workers with real layer-shard execution, then validating distributed numerical parity.
+
+## Session 24: Local go-pherence layer executor contract
+
+- Inspected `go-pherence/model.ForwardLayer` as the smallest safe local hook for layer-range execution over float activations and caller-owned KV caches.
+- Added `runtime.LayerRangeExecutor` and a local `PherenceLayerExecutor` wrapper that executes a validated shard range in-process with cancellation checks before each layer.
+- Added validation tests for nil/invalid models, context cancellation, malformed hidden size, KV cache shape, and invalid zero-layer ranges.

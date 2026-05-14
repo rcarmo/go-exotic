@@ -43,6 +43,12 @@ func TestShardExecutionRequestRejectsMalformedInputs(t *testing.T) {
 		func() ShardExecutionRequest { v := base; v.Shard.DeviceID = ""; return v }(),
 		func() ShardExecutionRequest { v := base; v.Position = -1; return v }(),
 		func() ShardExecutionRequest { v := base; v.HiddenSize = 0; return v }(),
+		func() ShardExecutionRequest {
+			v := base
+			v.HiddenSize = MaxActivationElements + 1
+			v.Activation = nil
+			return v
+		}(),
 		func() ShardExecutionRequest { v := base; v.Activation = []float32{1}; return v }(),
 	}
 	for i, tc := range cases {
@@ -61,6 +67,7 @@ func TestShardExecutionResponseValidation(t *testing.T) {
 		{},
 		{SessionID: "s", RequestID: "r", PeerID: "", Position: 0, HiddenSize: 1, Activation: []float32{1}},
 		{SessionID: "s", RequestID: "r", PeerID: "p", Position: -1, HiddenSize: 1, Activation: []float32{1}},
+		{SessionID: "s", RequestID: "r", PeerID: "p", Position: 0, HiddenSize: MaxActivationElements + 1, Activation: nil},
 		{SessionID: "s", RequestID: "r", PeerID: "p", Position: 0, HiddenSize: 2, Activation: []float32{1}},
 	}
 	for i, tc := range bad {

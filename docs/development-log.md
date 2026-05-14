@@ -164,3 +164,9 @@
 - Added explicit nil simulator rejection before generation setup.
 - Added checked position range validation so `base.Position + step` cannot overflow during multi-token synthetic generation.
 - Added regression coverage for nil simulator and overflowing generation positions.
+
+## Session 28: Activation payload bounds audit
+
+- Audited protocol activation payloads and shard messages for unbounded hidden-size/payload acceptance.
+- Added `MaxActivationElements` as a generous bound for the first flat f32 activation transport format.
+- Applied the bound to activation payload construction/decoding and shard request/response validation.

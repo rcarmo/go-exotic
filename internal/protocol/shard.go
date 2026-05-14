@@ -49,6 +49,9 @@ func (r ShardExecutionRequest) Validate(totalLayers int) error {
 	if r.HiddenSize <= 0 {
 		return fmt.Errorf("hidden size %d out of range", r.HiddenSize)
 	}
+	if r.HiddenSize > MaxActivationElements {
+		return fmt.Errorf("hidden size=%d exceeds max=%d", r.HiddenSize, MaxActivationElements)
+	}
 	if len(r.Activation) != r.HiddenSize {
 		return fmt.Errorf("activation len=%d, want hidden size=%d", len(r.Activation), r.HiddenSize)
 	}
@@ -70,6 +73,9 @@ func (r ShardExecutionResponse) Validate() error {
 	}
 	if r.HiddenSize <= 0 {
 		return fmt.Errorf("hidden size %d out of range", r.HiddenSize)
+	}
+	if r.HiddenSize > MaxActivationElements {
+		return fmt.Errorf("hidden size=%d exceeds max=%d", r.HiddenSize, MaxActivationElements)
 	}
 	if len(r.Activation) != r.HiddenSize {
 		return fmt.Errorf("activation len=%d, want hidden size=%d", len(r.Activation), r.HiddenSize)

@@ -38,6 +38,7 @@ func TestActivationPayloadRejectsMalformedInputs(t *testing.T) {
 		{},
 		{Encoding: "f16", HiddenSize: 1, Data: []byte{0, 0}},
 		{Encoding: ActivationEncodingF32LE, HiddenSize: 0, Data: nil},
+		{Encoding: ActivationEncodingF32LE, HiddenSize: MaxActivationElements + 1, Data: nil},
 		{Encoding: ActivationEncodingF32LE, HiddenSize: 2, Data: []byte{0, 0, 0, 0}},
 	}
 	for i, tc := range bad {

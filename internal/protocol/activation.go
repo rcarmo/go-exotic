@@ -6,7 +6,13 @@ import (
 	"math"
 )
 
-const ActivationEncodingF32LE = "f32le"
+const (
+	ActivationEncodingF32LE = "f32le"
+	// MaxActivationElements bounds accidental or malicious activation allocations.
+	// It is intentionally generous for current decoder hidden sizes while keeping
+	// the first transport format from accepting unbounded payloads.
+	MaxActivationElements = 1 << 24
+)
 
 // ActivationPayload is the transport-friendly representation of one activation
 // vector. It is intentionally flat for the first shard protocol; tensor shape
@@ -20,6 +26,9 @@ type ActivationPayload struct {
 func NewActivationPayload(values []float32) (ActivationPayload, error) {
 	if len(values) == 0 {
 		return ActivationPayload{}, fmt.Errorf("empty activation")
+	}
+	if len(values) > MaxActivationElements {
+		return ActivationPayload{}, fmt.Errorf("activation elements=%d exceeds max=%d", len(values), MaxActivationElements)
 	}
 	dataLen, ok := checkedMulInt(len(values), 4)
 	if !ok {
@@ -38,6 +47,9 @@ func (p ActivationPayload) Float32() ([]float32, error) {
 	}
 	if p.HiddenSize <= 0 {
 		return nil, fmt.Errorf("hidden size %d out of range", p.HiddenSize)
+	}
+	if p.HiddenSize > MaxActivationElements {
+		return nil, fmt.Errorf("hidden size=%d exceeds max=%d", p.HiddenSize, MaxActivationElements)
 	}
 	want, ok := checkedMulInt(p.HiddenSize, 4)
 	if !ok {

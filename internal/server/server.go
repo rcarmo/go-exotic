@@ -197,16 +197,19 @@ func (s *Server) handleLocalModels(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	models := make([]protocol.LocalModel, 0)
-	truncated := false
+	dirs := make([]os.DirEntry, 0, len(entries))
 	for _, entry := range entries {
-		if !entry.IsDir() {
-			continue
+		if entry.IsDir() {
+			dirs = append(dirs, entry)
 		}
-		if len(models) >= maxLocalModelInventory {
-			truncated = true
-			break
-		}
+	}
+	sort.Slice(dirs, func(i, j int) bool { return dirs[i].Name() < dirs[j].Name() })
+	truncated := len(dirs) > maxLocalModelInventory
+	if truncated {
+		dirs = dirs[:maxLocalModelInventory]
+	}
+	models := make([]protocol.LocalModel, 0, len(dirs))
+	for _, entry := range dirs {
 		path := filepath.Join(root, entry.Name())
 		files := modelFileStatuses(path, required)
 		complete := true
@@ -215,7 +218,6 @@ func (s *Server) handleLocalModels(w http.ResponseWriter, r *http.Request) {
 		}
 		models = append(models, protocol.LocalModel{ID: entry.Name(), Path: path, Files: files, Complete: complete})
 	}
-	sort.Slice(models, func(i, j int) bool { return models[i].ID < models[j].ID })
 	writeJSON(w, http.StatusOK, protocol.LocalModelsResponse{Root: root, Models: models, Truncated: truncated, Limit: maxLocalModelInventory})
 }
 

@@ -71,7 +71,10 @@ func TestServerLocalModels(t *testing.T) {
 
 func TestServerLocalModelsTruncatesLargeInventory(t *testing.T) {
 	root := t.TempDir()
-	for i := 0; i < maxLocalModelInventory+1; i++ {
+	if err := os.Mkdir(filepath.Join(root, "zzz-over-limit"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	for i := 0; i < maxLocalModelInventory; i++ {
 		if err := os.Mkdir(filepath.Join(root, fmt.Sprintf("model-%03d", i)), 0o755); err != nil {
 			t.Fatal(err)
 		}
@@ -88,6 +91,9 @@ func TestServerLocalModelsTruncatesLargeInventory(t *testing.T) {
 	}
 	if !got.Truncated || got.Limit != maxLocalModelInventory || len(got.Models) != maxLocalModelInventory {
 		t.Fatalf("unexpected truncation response: %+v", got)
+	}
+	if got.Models[len(got.Models)-1].ID != fmt.Sprintf("model-%03d", maxLocalModelInventory-1) {
+		t.Fatalf("inventory was not sorted before truncation: last=%s", got.Models[len(got.Models)-1].ID)
 	}
 }
 

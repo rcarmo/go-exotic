@@ -443,3 +443,9 @@
 - Bounded `/models/local` to return at most 200 model directories so accidentally broad roots do not flood the dashboard.
 - Added truncation metadata to the response and a dashboard warning when the inventory is truncated.
 - Added server coverage for truncation behavior.
+
+## Session 73: Sorted model inventory truncation
+
+- Audited `/models/local` truncation and changed it to sort directories before applying the response limit.
+- This makes the bounded inventory deterministic even when a root contains more than 200 model directories.
+- Strengthened truncation coverage to ensure lexically later entries are omitted after sorting.

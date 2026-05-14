@@ -289,3 +289,10 @@
 - Added `sim.RemoteWorkersFromRoutes` to explicitly convert planned routes into `cluster.RemoteShardWorker` instances for tests/orchestration.
 - Added httptest coverage that executes a simulator route through the HTTP shard endpoint via remote workers.
 - Added validation for empty route lists, malformed peers, unsupported transports, and conflicting duplicate peer IDs.
+
+## Session 48: Remote worker route metadata audit
+
+- Audited `sim.RemoteWorkersFromRoutes` after initial Phase 16 closeout.
+- Added explicit validation that each route shard device ID matches the route peer ID before constructing a remote worker map.
+- Added basic shard range validation for remote worker map construction.
+- Added regression coverage for shard/peer metadata mismatches and invalid shard ranges.

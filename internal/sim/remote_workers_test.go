@@ -61,6 +61,9 @@ func TestRemoteWorkersFromRoutesRejectsMalformedInputs(t *testing.T) {
 	if _, err := RemoteWorkersFromRoutes([]router.Route{{Peer: valid, Shard: exotic.Shard{DeviceID: "other", StartLayer: 0, EndLayer: 0}}}, nil, 0); err == nil {
 		t.Fatal("accepted shard/peer mismatch")
 	}
+	if _, err := RemoteWorkersFromRoutes([]router.Route{{Peer: valid, Shard: exotic.Shard{DeviceID: "p", StartLayer: 2, EndLayer: 1}}}, nil, 0); err == nil {
+		t.Fatal("accepted invalid shard range")
+	}
 	other := valid
 	other.Address = "http://127.0.0.1:2"
 	if _, err := RemoteWorkersFromRoutes([]router.Route{{Peer: valid}, {Peer: other}}, nil, 0); err == nil {

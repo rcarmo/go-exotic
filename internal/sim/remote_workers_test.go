@@ -58,12 +58,16 @@ func TestRemoteWorkersFromRoutesRejectsMalformedInputs(t *testing.T) {
 	if _, err := RemoteWorkersFromRoutes([]router.Route{{Peer: badTransport, Shard: exotic.Shard{DeviceID: "p", StartLayer: 0, EndLayer: 0}}}, nil, 0); err == nil {
 		t.Fatal("accepted unsupported transport")
 	}
+	if _, err := RemoteWorkersFromRoutes([]router.Route{{Peer: valid, Shard: exotic.Shard{DeviceID: "other", StartLayer: 0, EndLayer: 0}}}, nil, 0); err == nil {
+		t.Fatal("accepted shard/peer mismatch")
+	}
 	other := valid
 	other.Address = "http://127.0.0.1:2"
 	if _, err := RemoteWorkersFromRoutes([]router.Route{{Peer: valid}, {Peer: other}}, nil, 0); err == nil {
 		t.Fatal("accepted conflicting duplicate peer")
 	}
-	if workers, err := RemoteWorkersFromRoutes([]router.Route{{Peer: valid}, {Peer: valid}}, nil, 0); err != nil || len(workers) != 1 {
+	validRoute := router.Route{Peer: valid, Shard: exotic.Shard{DeviceID: "p", StartLayer: 0, EndLayer: 0}}
+	if workers, err := RemoteWorkersFromRoutes([]router.Route{validRoute, validRoute}, nil, 0); err != nil || len(workers) != 1 {
 		t.Fatalf("duplicate same peer err=%v workers=%v", err, workers)
 	}
 }

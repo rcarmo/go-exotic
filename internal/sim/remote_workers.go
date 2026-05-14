@@ -22,6 +22,9 @@ func RemoteWorkersFromRoutes(routes []router.Route, client *http.Client, timeout
 		if err := peer.Validate(); err != nil {
 			return nil, fmt.Errorf("route peer %q: %w", peer.ID, err)
 		}
+		if route.Shard.DeviceID != peer.ID {
+			return nil, fmt.Errorf("route shard device %q does not match peer %q", route.Shard.DeviceID, peer.ID)
+		}
 		if existing, exists := workers[peer.ID]; exists {
 			remote, ok := existing.(cluster.RemoteShardWorker)
 			if !ok || remote.Endpoint != peer.Address {

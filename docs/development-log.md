@@ -252,3 +252,9 @@
 - Added `router.BuildRoutesFromCapabilities` to convert wire-facing peer capabilities into validated shard routes.
 - The helper preserves the planning-only boundary: it constructs route metadata but does not enable networked generation.
 - Added tests for deterministic multi-peer capability routing and malformed capability rejection.
+
+## Session 42: Route preview API
+
+- Added `GET /routes/preview?layers=N&model=...` to expose capability-based route planning over HTTP.
+- Added route preview DTOs and server tests for successful multi-peer route previews and malformed route-preview inputs.
+- Fixed a latent cluster test package import cycle by moving remote worker tests to `cluster_test`.

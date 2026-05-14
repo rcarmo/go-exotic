@@ -136,3 +136,8 @@ Remaining work is productization rather than transport scaffolding: CLI wiring, 
 ## Capability-based route planning
 
 `router.BuildRoutesFromCapabilities` turns live `protocol.Capability` advertisements into validated `router.Route` values by reconstructing cluster peers from capability metadata (`address`, `transport`) and applying the existing route validation. This is planning-only and does not execute remote generation.
+
+
+## Route preview API
+
+`GET /routes/preview?layers=N&model=...` builds a placement plan from advertised server capabilities, converts those capabilities into validated routes, and returns peer/address/transport/shard entries. This is a planning endpoint only; it does not call `/shards/execute` or enable distributed generation.

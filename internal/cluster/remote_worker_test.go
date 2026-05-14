@@ -1,4 +1,4 @@
-package cluster
+package cluster_test
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rcarmo/go-exotic/internal/cluster"
 	"github.com/rcarmo/go-exotic/internal/exotic"
 	"github.com/rcarmo/go-exotic/internal/protocol"
 	"github.com/rcarmo/go-exotic/internal/server"
@@ -22,10 +23,10 @@ func TestRemoteShardWorkerExecutesViaHTTP(t *testing.T) {
 	}), 1)).Handler())
 	defer srv.Close()
 	srv.Config.ErrorLog = nil
-	worker := RemoteShardWorker{Endpoint: srv.URL, Client: srv.Client(), Timeout: time.Second}
+	worker := cluster.RemoteShardWorker{Endpoint: srv.URL, Client: srv.Client(), Timeout: time.Second}
 	orig := worker.Client.Transport
 	worker.Client.Transport = roundTripFunc(func(req *http.Request) (*http.Response, error) {
-		sawHeader = req.Header.Get(ShardRequestIDHeader)
+		sawHeader = req.Header.Get(cluster.ShardRequestIDHeader)
 		return orig.RoundTrip(req)
 	})
 	resp, err := worker.ExecuteShard(context.Background(), protocol.ShardExecutionRequest{SessionID: "s", RequestID: "rid", ModelID: "m", Shard: exotic.Shard{DeviceID: "peer", StartLayer: 0, EndLayer: 0}, Position: 0, HiddenSize: 1, Activation: []float32{3}})
@@ -48,7 +49,7 @@ func TestRemoteShardWorkerPropagatesCancellationAndTimeout(t *testing.T) {
 	defer srv.Close()
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
-	worker := RemoteShardWorker{Endpoint: srv.URL, Client: srv.Client()}
+	worker := cluster.RemoteShardWorker{Endpoint: srv.URL, Client: srv.Client()}
 	_, err := worker.ExecuteShard(ctx, protocol.ShardExecutionRequest{SessionID: "s", RequestID: "r", ModelID: "m", Shard: exotic.Shard{DeviceID: "peer", StartLayer: 0, EndLayer: 0}, Position: 0, HiddenSize: 1, Activation: []float32{1}})
 	if !errors.Is(err, context.Canceled) {
 		t.Fatalf("err=%v want context.Canceled", err)
@@ -66,12 +67,12 @@ func TestShardExecuteRejectsRequestIDHeaderMismatch(t *testing.T) {
 		return protocol.ShardExecutionResponse{}, nil
 	}), 1)).Handler())
 	defer srv.Close()
-	worker := RemoteShardWorker{Endpoint: srv.URL, Client: srv.Client()}
+	worker := cluster.RemoteShardWorker{Endpoint: srv.URL, Client: srv.Client()}
 	req := protocol.ShardExecutionRequest{SessionID: "s", RequestID: "body", ModelID: "m", Shard: exotic.Shard{DeviceID: "peer", StartLayer: 0, EndLayer: 0}, Position: 0, HiddenSize: 1, Activation: []float32{1}}
 	client := srv.Client()
 	orig := client.Transport
 	client.Transport = roundTripFunc(func(r *http.Request) (*http.Response, error) {
-		r.Header.Set(ShardRequestIDHeader, "header")
+		r.Header.Set(cluster.ShardRequestIDHeader, "header")
 		return orig.RoundTrip(r)
 	})
 	worker.Client = client

@@ -62,6 +62,39 @@ func TestServerCopiesCapabilityMetadata(t *testing.T) {
 	}
 }
 
+func TestServerRoutePreview(t *testing.T) {
+	s := New([]protocol.Capability{
+		{PeerID: "a", Device: exotic.Device{ID: "a", MemoryGB: 1}, Metadata: map[string]string{"address": "http://127.0.0.1:1", "transport": "http"}},
+		{PeerID: "b", Device: exotic.Device{ID: "b", MemoryGB: 1}, Metadata: map[string]string{"address": "http://127.0.0.1:2", "transport": "http"}},
+	})
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/routes/preview?layers=4&model=test", nil))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", rr.Code, rr.Body.String())
+	}
+	var got protocol.RoutePreview
+	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if got.ModelID != "test" || got.Layers != 4 || len(got.Routes) != 2 || got.Routes[0].PeerID != "a" || got.Routes[1].PeerID != "b" {
+		t.Fatalf("unexpected route preview: %+v", got)
+	}
+}
+
+func TestServerRejectsMalformedRoutePreview(t *testing.T) {
+	s := New([]protocol.Capability{{PeerID: "local", Device: exotic.Device{ID: "local", MemoryGB: 1}}})
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/routes/preview?layers=bad", nil))
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("status=%d want 400", rr.Code)
+	}
+	rr = httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/routes/preview?layers=1", nil))
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("status=%d want 400 for missing capability address", rr.Code)
+	}
+}
+
 func TestServerRejectsMalformedPlacementRequest(t *testing.T) {
 	s := New([]protocol.Capability{{PeerID: "local", Device: exotic.Device{ID: "local", MemoryGB: 1}}})
 	rr := httptest.NewRecorder()

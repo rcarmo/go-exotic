@@ -10,6 +10,7 @@ import (
 	"github.com/rcarmo/go-exotic/internal/exotic"
 	"github.com/rcarmo/go-exotic/internal/placement"
 	"github.com/rcarmo/go-exotic/internal/protocol"
+	"github.com/rcarmo/go-exotic/internal/router"
 )
 
 type ShardWorker interface {
@@ -51,6 +52,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("/health", s.handleHealth)
 	mux.HandleFunc("/capabilities", s.handleCapabilities)
 	mux.HandleFunc("/placement/preview", s.handlePlacementPreview)
+	mux.HandleFunc("/routes/preview", s.handleRoutesPreview)
 	mux.HandleFunc("/shards/execute", s.handleShardExecute)
 	return mux
 }
@@ -76,10 +78,9 @@ func (s *Server) handlePlacementPreview(w http.ResponseWriter, r *http.Request) 
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
-	layersText := r.URL.Query().Get("layers")
-	layers, err := strconv.Atoi(layersText)
-	if err != nil || layers <= 0 {
-		writeError(w, http.StatusBadRequest, "layers must be a positive integer")
+	layers, err := positiveIntQuery(r, "layers")
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	devices := make([]exotic.Device, 0, len(s.capabilities))
@@ -92,6 +93,37 @@ func (s *Server) handlePlacementPreview(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	writeJSON(w, http.StatusOK, protocol.PlacementPreview{ModelID: r.URL.Query().Get("model"), Layers: layers, Shards: plan.Shards})
+}
+
+func (s *Server) handleRoutesPreview(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	layers, err := positiveIntQuery(r, "layers")
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	devices := make([]exotic.Device, 0, len(s.capabilities))
+	for _, cap := range s.capabilities {
+		devices = append(devices, cap.Device)
+	}
+	plan, err := placement.NewPlan(devices, layers)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	routes, err := router.BuildRoutesFromCapabilities(r.Context(), s.capabilitiesCopy(), plan.Shards, layers)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	entries := make([]protocol.RouteEntry, 0, len(routes))
+	for _, route := range routes {
+		entries = append(entries, protocol.RouteEntry{PeerID: route.Peer.ID, Address: route.Peer.Address, Transport: route.Peer.Transport, Shard: route.Shard})
+	}
+	writeJSON(w, http.StatusOK, protocol.RoutePreview{ModelID: r.URL.Query().Get("model"), Layers: layers, Routes: entries})
 }
 
 func (s *Server) handleShardExecute(w http.ResponseWriter, r *http.Request) {
@@ -139,6 +171,15 @@ func (s *Server) handleShardExecute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, out)
+}
+
+func positiveIntQuery(r *http.Request, name string) (int, error) {
+	value := r.URL.Query().Get(name)
+	parsed, err := strconv.Atoi(value)
+	if err != nil || parsed <= 0 {
+		return 0, fmt.Errorf("%s must be a positive integer", name)
+	}
+	return parsed, nil
 }
 
 func (s *Server) capabilitiesCopy() []protocol.Capability {

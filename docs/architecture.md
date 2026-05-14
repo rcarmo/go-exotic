@@ -141,3 +141,8 @@ Remaining work is productization rather than transport scaffolding: CLI wiring, 
 ## Route preview API
 
 `GET /routes/preview?layers=N&model=...` builds a placement plan from advertised server capabilities, converts those capabilities into validated routes, and returns peer/address/transport/shard entries. This is a planning endpoint only; it does not call `/shards/execute` or enable distributed generation.
+
+
+## Registry-backed route previews
+
+`router.PreviewFromRegistry` builds a `protocol.RoutePreview` from the current in-memory `cluster.Registry` snapshot. It converts registered peers to capability DTOs, builds a placement plan, and returns route entries. The function is metadata-only: it does not contact peers and does not call the shard execution endpoint.

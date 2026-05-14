@@ -264,3 +264,9 @@
 
 - Updated README and architecture API summaries for `/routes/preview`.
 - Clarified that route previews are planning-only and do not enable shard execution.
+
+## Session 44: Registry-backed route planning
+
+- Added `router.PreviewFromRegistry` to build planning-only route previews from the current in-memory peer registry snapshot.
+- The helper converts peers to capabilities, builds a placement plan, and returns route preview DTOs without contacting peers or executing shards.
+- Added tests for registry-backed previews, stale eviction behavior, malformed inputs, and cancellation.

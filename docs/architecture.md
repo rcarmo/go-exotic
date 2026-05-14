@@ -80,3 +80,7 @@ The initial development plan is complete through synthetic N-shard token flow an
 ## Real layer execution hook
 
 Phase 7 starts with `go-pherence/model.ForwardLayer` as the smallest safe local API for layer-range execution. `runtime.PherenceLayerExecutor` wraps this hook behind `LayerRangeExecutor`, validates request/model/KV-cache shape, copies activation inputs/outputs, and checks cancellation before each layer. This remains in-process only; remote HTTP shard execution is still disabled.
+
+## Simulator layer executor worker
+
+`internal/sim.LayerExecutorWorker` adapts a `runtime.LayerRangeExecutor` to the simulator `Worker` interface and keeps float KV caches local to the worker. This allows Phase 8 to substitute real `go-pherence` layer execution for synthetic workers without adding network transport.

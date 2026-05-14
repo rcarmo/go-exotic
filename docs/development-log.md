@@ -170,3 +170,9 @@
 - Audited protocol activation payloads and shard messages for unbounded hidden-size/payload acceptance.
 - Added `MaxActivationElements` as a generous bound for the first flat f32 activation transport format.
 - Applied the bound to activation payload construction/decoding and shard request/response validation.
+
+## Session 29: Layer executor simulator worker
+
+- Integrated the local layer-range execution contract into `internal/sim` via `LayerExecutorWorker`.
+- Added focused tests for single-layer execution validation, multi-layer range validation, malformed activation rejection, nil worker/executor rejection, and cancellation propagation through the worker adapter.
+- The tests use a fake layer executor; real `go-pherence` layer numerical parity remains a Phase 8 gate.

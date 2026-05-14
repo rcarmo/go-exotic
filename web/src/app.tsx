@@ -5,18 +5,17 @@ import { BoundaryStatus, CapabilityResponse, getJSON, LoadState, LocalModelsResp
 import { loadNumber, loadString, saveValue } from "./storage";
 import "./style.css";
 
-function useJSON<T>(path: string, deps: unknown[] = []): LoadState<T> & { refresh: () => void } {
+function useJSON<T>(path: string): LoadState<T> & { refresh: () => void } {
   const [tick, setTick] = useState(0);
   const [state, setState] = useState<LoadState<T>>({ loading: true });
   useEffect(() => {
     let cancelled = false;
-    setState({ loading: true, data: state.data });
+    setState((current) => ({ loading: true, data: current.data }));
     getJSON<T>(path)
       .then((data) => !cancelled && setState({ loading: false, data }))
       .catch((err: Error) => !cancelled && setState({ loading: false, error: err.message }));
     return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [path, tick, ...deps]);
+  }, [path, tick]);
   return { ...state, refresh: () => setTick((v) => v + 1) };
 }
 
@@ -34,10 +33,10 @@ function App() {
   const uiStatus = useJSON<UIStatusResponse>("/ui/status");
   const caps = useJSON<CapabilityResponse>("/capabilities");
   const boundary = useBoundaryStatus();
-  const localModels = useJSON<LocalModelsResponse>(`/models/local?root=${encodeURIComponent(modelRoot)}&limit=${modelLimit}`, [modelRoot, modelLimit]);
-  const helpers = useJSON<ModelHelperResponse>(`/models/helpers?model=${encodeURIComponent(model)}&path=${encodeURIComponent(modelPath)}`, [model, modelPath]);
-  const placement = useJSON<PlacementPreview>(`/placement/preview?layers=${layers}&model=${encodeURIComponent(model)}`, [layers, model]);
-  const routes = useJSON<RoutePreview>(`/routes/preview?layers=${layers}&model=${encodeURIComponent(model)}`, [layers, model]);
+  const localModels = useJSON<LocalModelsResponse>(`/models/local?root=${encodeURIComponent(modelRoot)}&limit=${modelLimit}`);
+  const helpers = useJSON<ModelHelperResponse>(`/models/helpers?model=${encodeURIComponent(model)}&path=${encodeURIComponent(modelPath)}`);
+  const placement = useJSON<PlacementPreview>(`/placement/preview?layers=${layers}&model=${encodeURIComponent(model)}`);
+  const routes = useJSON<RoutePreview>(`/routes/preview?layers=${layers}&model=${encodeURIComponent(model)}`);
 
   return <main>
     <header class="hero">
@@ -98,12 +97,11 @@ function useBoundaryStatus(): LoadState<BoundaryStatus> & { refresh: () => void 
   const [state, setState] = useState<LoadState<BoundaryStatus>>({ loading: true });
   useEffect(() => {
     let cancelled = false;
-    setState({ loading: true, data: state.data });
+    setState((current) => ({ loading: true, data: current.data }));
     probeShardExecution()
       .then((data) => !cancelled && setState({ loading: false, data }))
       .catch((err: Error) => !cancelled && setState({ loading: false, error: err.message }));
     return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tick]);
   return { ...state, refresh: () => setTick((v) => v + 1) };
 }

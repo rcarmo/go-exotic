@@ -485,3 +485,9 @@
 
 - Reused the dashboard API client's tolerant JSON parsing in the shard execution status probe.
 - This keeps `/shards/execute` boundary diagnostics consistent with the rest of the UI when responses are JSON, text, or empty.
+
+## Session 81: UI/API smell audit fixes
+
+- Audited recent dashboard API changes for concrete logic smells.
+- Fixed successful-response JSON parsing so malformed JSON is reported as an API error instead of silently becoming undefined data.
+- Simplified dashboard fetch hooks to derive dependencies from the request path and use functional state updates, removing stale-closure lint suppressions.

@@ -32,28 +32,31 @@ export class APIError extends Error {
   }
 }
 
-function parseJSON(text: string): unknown {
-  if (!text) return undefined;
+function parseJSON(text: string): { ok: true; value: unknown } | { ok: false } {
+  if (!text) return { ok: true, value: undefined };
   try {
-    return JSON.parse(text);
+    return { ok: true, value: JSON.parse(text) };
   } catch {
-    return undefined;
+    return { ok: false };
   }
 }
 
 export async function getJSON<T>(path: string): Promise<T> {
   const res = await fetch(path, { headers: { accept: "application/json" } });
   const text = await res.text();
-  const parsed = parseJSON(text) as { error?: string } | undefined;
-  if (!res.ok) throw new APIError(res.status, res.statusText, parsed?.error || text || "request failed");
-  return parsed as T;
+  const parsed = parseJSON(text);
+  const value = parsed.ok ? parsed.value as { error?: string } | undefined : undefined;
+  if (!res.ok) throw new APIError(res.status, res.statusText, value?.error || text || "request failed");
+  if (!parsed.ok) throw new APIError(res.status, res.statusText, "invalid JSON response");
+  return parsed.value as T;
 }
 
 export async function probeShardExecution(): Promise<BoundaryStatus> {
   const res = await fetch("/shards/execute", { method: "POST", headers: { "content-type": "application/json", accept: "application/json" }, body: "{}" });
   const text = await res.text();
-  const parsed = parseJSON(text) as { error?: string } | undefined;
-  const detail = parsed?.error || text || `${res.status} ${res.statusText}`;
+  const parsed = parseJSON(text);
+  const value = parsed.ok ? parsed.value as { error?: string } | undefined : undefined;
+  const detail = value?.error || text || `${res.status} ${res.statusText}`;
   if (res.status === 503) return { status: "disabled", detail };
   if (res.status === 400) return { status: "available", detail: "Shard endpoint is wired and validating requests" };
   if (res.ok) return { status: "available", detail };

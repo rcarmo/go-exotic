@@ -116,3 +116,14 @@ The integration suite now has a documented SmolLM2 fixture skip path: set `GO_EX
 ## Remote shard client guardrails
 
 `cluster.RemoteShardWorker` is the first HTTP client adapter for `/shards/execute`. It serializes requests with `ActivationPayload`, derives HTTP requests from the caller context, optionally wraps calls in a timeout, and sends `X-Go-Exotic-Request-ID`. The server rejects header/body request-ID mismatches, and the client rejects response request-ID mismatches. This is covered with `httptest`; LAN execution is still not enabled by the CLI.
+
+## Phase 9 closeout status
+
+Phase 9 has the first remote transport surface in place without enabling LAN distributed generation by default:
+
+- `/shards/execute` is present but requires explicit `server.WithShardExecution` wiring.
+- The default `go-exotic serve` command does not install a shard worker and returns `503 shard execution disabled`.
+- `cluster.RemoteShardWorker` provides the client-side bridge with context cancellation, optional timeout, and request-ID propagation.
+- HTTP transport tests run entirely under `httptest`; no LAN assumptions are required.
+
+Remaining work is productization rather than transport scaffolding: CLI wiring, LAN peer selection, richer payload formats, and end-to-end networked generation.

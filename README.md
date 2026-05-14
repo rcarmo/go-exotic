@@ -12,7 +12,7 @@ The upstream reference is cloned separately at:
 - Use `go-pherence` for local model metadata, tokenization, and full-model generation.
 - Keep shard placement deterministic and heavily validated before enabling remote execution.
 - Start with HTTP/LAN capability and placement surfaces, then simulate multi-node execution before true distributed inference.
-- Keep distributed generation disabled until simulated multi-node output matches local full-model `go-pherence` output.
+- Keep CLI/LAN distributed generation disabled until local real-shard parity and HTTP transport guardrails are validated.
 
 ## Current status
 
@@ -30,6 +30,7 @@ Implemented:
   - `GET /health`
   - `GET /capabilities`
   - `GET /placement/preview?layers=N&model=...`
+  - `POST /shards/execute` — gated behind explicit server wiring; disabled by the default CLI server
 - core packages for domain, placement, cluster, routing, runtime, protocol, and server surfaces
 - in-memory peer registry with heartbeat and stale-peer eviction
 - route construction with cancellation propagation
@@ -37,14 +38,15 @@ Implemented:
 - local in-process `go-pherence` layer-range executor over `ForwardLayer`
 - simulator worker adapter for real local layer executors
 - bounded flat f32 activation payload format and shard execution DTOs
+- single-host real-shard hidden-state and one-token output parity gates
+- disabled-by-default HTTP shard execution bridge with request IDs, context cancellation, timeouts, and httptest coverage
 
 Deferred:
 
-- remote shard execution over HTTP
-- distributed numerical parity with real layer-shard workers
+- enabling remote shard execution in the CLI/LAN path
 - OpenAI-compatible generation endpoint
 - model download/cache coordination
-- tensor activation serialization
+- richer tensor activation serialization beyond the initial flat f32 payload
 - networked multi-worker generation
 
 ## Quick start
@@ -97,4 +99,4 @@ Signed-off-by: Rui Carmo <rui.carmo@gmail.com>
 
 ## Current execution boundary
 
-`go-exotic` can now execute validated layer ranges in-process through `runtime.PherenceLayerExecutor`, which wraps `go-pherence/model.ForwardLayer`. `internal/sim.LayerExecutorWorker` adapts that executor to the simulator worker interface. Remote shard execution remains disabled until single-host real-shard parity passes.
+`go-exotic` can now execute validated layer ranges in-process through `runtime.PherenceLayerExecutor`, which wraps `go-pherence/model.ForwardLayer`. `internal/sim.LayerExecutorWorker` adapts that executor to the simulator worker interface. Local real-shard hidden-state and one-token output parity are covered by fixture-backed tests. The HTTP shard endpoint and client adapter exist for tests, but the default CLI server still leaves remote execution disabled.

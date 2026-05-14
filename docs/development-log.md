@@ -219,3 +219,10 @@
 - The adapter propagates caller context cancellation, supports per-request timeouts, and sends `X-Go-Exotic-Request-ID` alongside the body request ID.
 - The server rejects mismatched request ID headers before worker execution, and the client rejects mismatched response request IDs.
 - Added httptest coverage for successful remote execution, cancellation, timeout, and request-ID mismatch handling.
+
+
+## Session 37: Phase 9 documentation closeout
+
+- Reviewed docs after adding the gated HTTP shard endpoint and remote shard worker.
+- Updated README status to distinguish implemented transport scaffolding from still-disabled CLI/LAN distributed generation.
+- Added a Phase 9 closeout note covering disabled-by-default server behavior, request-ID/timeout guardrails, and remaining productization work.

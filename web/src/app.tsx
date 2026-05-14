@@ -32,7 +32,7 @@ function App() {
   const uiStatus = useJSON<UIStatusResponse>("/ui/status");
   const caps = useJSON<CapabilityResponse>("/capabilities");
   const boundary = useBoundaryStatus();
-  const localModels = useJSON<LocalModelsResponse>(`/models/local?root=${encodeURIComponent(modelRoot)}`, [modelRoot]);
+  const localModels = useJSON<LocalModelsResponse>(`/models/local?root=${encodeURIComponent(modelRoot)}&limit=50`, [modelRoot]);
   const helpers = useJSON<ModelHelperResponse>(`/models/helpers?model=${encodeURIComponent(model)}&path=${encodeURIComponent(modelPath)}`, [model, modelPath]);
   const placement = useJSON<PlacementPreview>(`/placement/preview?layers=${layers}&model=${encodeURIComponent(model)}`, [layers, model]);
   const routes = useJSON<RoutePreview>(`/routes/preview?layers=${layers}&model=${encodeURIComponent(model)}`, [layers, model]);

@@ -191,6 +191,17 @@ func (s *Server) handleLocalModels(w http.ResponseWriter, r *http.Request) {
 	if root == "" {
 		root = "../go-pherence/models"
 	}
+	limit := maxLocalModelInventory
+	if rawLimit := r.URL.Query().Get("limit"); rawLimit != "" {
+		parsed, err := strconv.Atoi(rawLimit)
+		if err != nil || parsed <= 0 {
+			writeError(w, http.StatusBadRequest, "limit must be a positive integer")
+			return
+		}
+		if parsed < limit {
+			limit = parsed
+		}
+	}
 	required := []string{"config.json", "tokenizer.json", "*.safetensors"}
 	entries, err := os.ReadDir(root)
 	if err != nil {
@@ -204,9 +215,9 @@ func (s *Server) handleLocalModels(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	sort.Slice(dirs, func(i, j int) bool { return dirs[i].Name() < dirs[j].Name() })
-	truncated := len(dirs) > maxLocalModelInventory
+	truncated := len(dirs) > limit
 	if truncated {
-		dirs = dirs[:maxLocalModelInventory]
+		dirs = dirs[:limit]
 	}
 	models := make([]protocol.LocalModel, 0, len(dirs))
 	for _, entry := range dirs {
@@ -218,7 +229,7 @@ func (s *Server) handleLocalModels(w http.ResponseWriter, r *http.Request) {
 		}
 		models = append(models, protocol.LocalModel{ID: entry.Name(), Path: path, Files: files, Complete: complete})
 	}
-	writeJSON(w, http.StatusOK, protocol.LocalModelsResponse{Root: root, Models: models, Truncated: truncated, Limit: maxLocalModelInventory})
+	writeJSON(w, http.StatusOK, protocol.LocalModelsResponse{Root: root, Models: models, Truncated: truncated, Limit: limit})
 }
 
 func (s *Server) handleModelHelpers(w http.ResponseWriter, r *http.Request) {

@@ -449,3 +449,9 @@
 - Audited `/models/local` truncation and changed it to sort directories before applying the response limit.
 - This makes the bounded inventory deterministic even when a root contains more than 200 model directories.
 - Strengthened truncation coverage to ensure lexically later entries are omitted after sorting.
+
+## Session 74: Configurable model inventory limit
+
+- Added a bounded `limit` query parameter to `/models/local`, capped by the server-side maximum.
+- The dashboard now requests a compact local model inventory (`limit=50`) by default.
+- Added server coverage for malformed limits and explicit truncation limits.

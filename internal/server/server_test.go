@@ -69,6 +69,38 @@ func TestServerLocalModels(t *testing.T) {
 	}
 }
 
+func TestServerLocalModelsRejectsBadLimit(t *testing.T) {
+	root := t.TempDir()
+	s := New(nil)
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/models/local?root="+root+"&limit=bad", nil))
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("status=%d want 400", rr.Code)
+	}
+}
+
+func TestServerLocalModelsHonorsLimit(t *testing.T) {
+	root := t.TempDir()
+	for i := 0; i < 3; i++ {
+		if err := os.Mkdir(filepath.Join(root, fmt.Sprintf("model-%03d", i)), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	s := New(nil)
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/models/local?root="+root+"&limit=2", nil))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", rr.Code, rr.Body.String())
+	}
+	var got protocol.LocalModelsResponse
+	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if !got.Truncated || got.Limit != 2 || len(got.Models) != 2 {
+		t.Fatalf("unexpected limited response: %+v", got)
+	}
+}
+
 func TestServerLocalModelsTruncatesLargeInventory(t *testing.T) {
 	root := t.TempDir()
 	if err := os.Mkdir(filepath.Join(root, "zzz-over-limit"), 0o755); err != nil {

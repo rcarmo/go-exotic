@@ -116,3 +116,9 @@
 - Added `internal/sim`, a sequential in-process multi-worker harness over routed shard execution requests.
 - The simulator validates request/response metadata, propagates cancellation, copies activation outputs between routes, and keeps execution local-only.
 - Added tests for successful two-shard execution, malformed simulator inputs, worker errors, and cancellation propagation.
+
+## Session 20: Activation serialization format
+
+- Added `protocol.ActivationPayload`, a flat float32 little-endian activation serialization format for the first shard execution protocol.
+- Added round-trip JSON/base64 coverage and malformed payload validation for encoding, hidden size, and byte length.
+- Kept the format deliberately simple pending batched/paged tensor execution.

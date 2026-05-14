@@ -2,6 +2,7 @@ import { render } from "preact";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import * as d3 from "d3";
 import { BoundaryStatus, CapabilityResponse, getJSON, LoadState, PlacementPreview, probeShardExecution, RoutePreview } from "./api";
+import { loadNumber, loadString, saveValue } from "./storage";
 import "./style.css";
 
 function useJSON<T>(path: string, deps: unknown[] = []): LoadState<T> & { refresh: () => void } {
@@ -20,9 +21,12 @@ function useJSON<T>(path: string, deps: unknown[] = []): LoadState<T> & { refres
 }
 
 function App() {
-  const [layers, setLayers] = useState(4);
-  const [model, setModel] = useState("demo");
-  const [modelPath, setModelPath] = useState("../go-pherence/models/demo");
+  const [layers, setLayersState] = useState(() => loadNumber("go-exotic.layers", 4));
+  const [model, setModelState] = useState(() => loadString("go-exotic.model", "demo"));
+  const [modelPath, setModelPathState] = useState(() => loadString("go-exotic.modelPath", "../go-pherence/models/demo"));
+  const setLayers = (value: number) => { const next = Math.max(1, value); setLayersState(next); saveValue("go-exotic.layers", next); };
+  const setModel = (value: string) => { setModelState(value); saveValue("go-exotic.model", value); };
+  const setModelPath = (value: string) => { setModelPathState(value); saveValue("go-exotic.modelPath", value); };
   const caps = useJSON<CapabilityResponse>("/capabilities");
   const boundary = useBoundaryStatus();
   const placement = useJSON<PlacementPreview>(`/placement/preview?layers=${layers}&model=${encodeURIComponent(model)}`, [layers, model]);

@@ -355,3 +355,9 @@
 - Split dashboard API types/fetch helpers into `web/src/api.ts`.
 - Added a non-executing `/shards/execute` status probe that distinguishes the default disabled state from explicit shard-worker wiring.
 - Added an execution-boundary card to make clear that route and placement previews are metadata-only.
+
+## Session 58: Web UI control persistence
+
+- Added a small TypeScript storage helper for dashboard settings.
+- Persisted model ID, model path, and layer count in browser localStorage so planner inputs survive refreshes.
+- Kept the UI fully typechecked and rebuilt through `make check`.

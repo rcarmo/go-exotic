@@ -30,6 +30,7 @@ Implemented:
   - `GET /health`
   - `GET /capabilities`
   - `GET /placement/preview?layers=N&model=...`
+  - `GET /routes/preview?layers=N&model=...` — planning-only route preview from advertised capabilities
   - `POST /shards/execute` — gated behind explicit server wiring; disabled by the default CLI server
 - core packages for domain, placement, cluster, routing, runtime, protocol, and server surfaces
 - in-memory peer registry with heartbeat and stale-peer eviction
@@ -67,9 +68,10 @@ Example API calls while `serve` is running:
 curl http://127.0.0.1:8089/health
 curl http://127.0.0.1:8089/capabilities
 curl 'http://127.0.0.1:8089/placement/preview?layers=4&model=demo'
+curl 'http://127.0.0.1:8089/routes/preview?layers=4&model=demo'
 ```
 
-`serve` is quiet by default. Use `-verbose` for structured JSON diagnostics. `/shards/execute` remains disabled unless `serve` is started with the explicit local opt-in `-shard-model /path/to/go-pherence-model`.
+`serve` is quiet by default. Use `-verbose` for structured JSON diagnostics. `/routes/preview` is planning-only. `/shards/execute` remains disabled unless `serve` is started with the explicit local opt-in `-shard-model /path/to/go-pherence-model`.
 
 ## Architecture
 

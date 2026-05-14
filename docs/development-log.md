@@ -258,3 +258,9 @@
 - Added `GET /routes/preview?layers=N&model=...` to expose capability-based route planning over HTTP.
 - Added route preview DTOs and server tests for successful multi-peer route previews and malformed route-preview inputs.
 - Fixed a latent cluster test package import cycle by moving remote worker tests to `cluster_test`.
+
+
+## Session 43: Route preview documentation alignment
+
+- Updated README and architecture API summaries for `/routes/preview`.
+- Clarified that route previews are planning-only and do not enable shard execution.

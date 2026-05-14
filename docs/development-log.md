@@ -460,3 +460,8 @@
 
 - Added a dashboard Inventory limit control for `/models/local` and persisted it in localStorage.
 - Clamped the UI value to the server-supported range (1–200) and wired it into local fixture scans.
+
+## Session 76: Local fixture inventory summary
+
+- Added a dashboard summary for local model inventory scans showing complete/total fixture counts.
+- This makes broad or truncated inventories easier to understand at a glance.

@@ -84,3 +84,15 @@ Phase 7 starts with `go-pherence/model.ForwardLayer` as the smallest safe local 
 ## Simulator layer executor worker
 
 `internal/sim.LayerExecutorWorker` adapts a `runtime.LayerRangeExecutor` to the simulator `Worker` interface and keeps float KV caches local to the worker. This allows Phase 8 to substitute real `go-pherence` layer execution for synthetic workers without adding network transport.
+
+## Phase 7 audit status
+
+Recent audits added guardrails around the real-shard scaffolding:
+
+- `PherenceLayerExecutor` requires request `totalLayers` to match the loaded model layer count before validating/executing a shard range.
+- `protocol.MaxActivationElements` bounds flat f32 activation payloads and shard request/response hidden sizes.
+- `Simulator.Execute` verifies shard responses come from the route peer.
+- `Simulator.GenerateTokens` rejects nil simulators and checks decode-position overflow.
+- `NewSimulator` rejects typed-nil workers such as `WorkerFunc(nil)` and nil pointer workers.
+
+These checks keep the local real-layer path safe while Phase 8 parity work is still pending.

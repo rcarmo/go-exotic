@@ -182,3 +182,9 @@
 - Audited simulator worker registration after adding `LayerExecutorWorker`.
 - Fixed typed-nil worker handling: `WorkerFunc(nil)` and nil pointer workers inside the `Worker` interface are now rejected by `NewSimulator` instead of panicking later during execution.
 - Added regression coverage for typed nil worker functions and nil pointer workers.
+
+## Session 31: Documentation refresh after Phase 7 audits
+
+- Refreshed project documentation after adding the local `go-pherence` layer-range executor, simulator worker adapter, bounded activation payloads, and simulator audit fixes.
+- Documented current Phase 7 status: real local layer execution is available in-process through `PherenceLayerExecutor` and `LayerExecutorWorker`, while remote HTTP shard execution remains disabled until parity gates pass.
+- Noted protocol and simulator guardrails: bounded flat f32 activation payloads, response peer identity validation, generation position overflow checks, and typed-nil worker rejection.

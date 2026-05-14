@@ -34,10 +34,14 @@ Implemented:
 - in-memory peer registry with heartbeat and stale-peer eviction
 - route construction with cancellation propagation
 - in-process multi-node placement/routing integration test
+- local in-process `go-pherence` layer-range executor over `ForwardLayer`
+- simulator worker adapter for real local layer executors
+- bounded flat f32 activation payload format and shard execution DTOs
 
 Deferred:
 
-- remote shard execution
+- remote shard execution over HTTP
+- distributed numerical parity with real layer-shard workers
 - OpenAI-compatible generation endpoint
 - model download/cache coordination
 - tensor activation serialization
@@ -90,3 +94,7 @@ Use Rui Carmo's Git identity and include:
 ```text
 Signed-off-by: Rui Carmo <rui.carmo@gmail.com>
 ```
+
+## Current execution boundary
+
+`go-exotic` can now execute validated layer ranges in-process through `runtime.PherenceLayerExecutor`, which wraps `go-pherence/model.ForwardLayer`. `internal/sim.LayerExecutorWorker` adapts that executor to the simulator worker interface. Remote shard execution remains disabled until single-host real-shard parity passes.

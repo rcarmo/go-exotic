@@ -20,3 +20,8 @@ Current porting direction:
 5. Keep shard boundaries explicit and validated before distributed inference.
 
 Do not vendor upstream exo into `go-exotic`; treat it as a read-only reference checkout.
+
+
+## Current go-exotic divergence update
+
+Unlike upstream exo's backend runners, the current Go port has a narrow in-process layer execution hook over `go-pherence/model.ForwardLayer`. This deliberately avoids remote execution and download orchestration until local real-shard simulation can be compared against full-model `go-pherence` output.

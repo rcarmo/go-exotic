@@ -173,3 +173,8 @@ This document was refreshed after the route-preview, registry-backed planning, r
 ## Web UI
 
 The server serves a small dashboard at `/` plus bundled static assets under `/static/`. The UI source is TypeScript/TSX in `web/src`, typechecked with `tsc`, and built with Bun into `web/static/app.js` and `web/static/app.css`. Preact and D3 are bundled into the generated asset from Bun dependencies, and the dashboard currently shows peers, placement previews, route previews, execution-boundary status, error states, and copyable model setup helper commands. API fetch/types live in `web/src/api.ts`; lightweight localStorage helpers live in `web/src/storage.ts` for persisting planner controls.
+
+
+## Model helper API
+
+`GET /models/helpers?model=...&path=...` returns manual model fixture setup commands and required file names for the dashboard. It is intentionally non-mutating: it does not download models or write files.

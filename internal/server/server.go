@@ -71,6 +71,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("/static/", s.handleStatic)
 	mux.HandleFunc("/health", s.handleHealth)
 	mux.HandleFunc("/capabilities", s.handleCapabilities)
+	mux.HandleFunc("/models/helpers", s.handleModelHelpers)
 	mux.HandleFunc("/placement/preview", s.handlePlacementPreview)
 	mux.HandleFunc("/routes/preview", s.handleRoutesPreview)
 	mux.HandleFunc("/shards/execute", s.handleShardExecute)
@@ -120,6 +121,32 @@ func (s *Server) handleCapabilities(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, protocol.CapabilitiesResponse{Capabilities: s.capabilitiesCopy()})
+}
+
+func (s *Server) handleModelHelpers(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	modelID := r.URL.Query().Get("model")
+	if modelID == "" {
+		modelID = "MODEL"
+	}
+	modelPath := r.URL.Query().Get("path")
+	if modelPath == "" {
+		modelPath = "../go-pherence/models/" + modelID
+	}
+	writeJSON(w, http.StatusOK, protocol.ModelHelperResponse{
+		Status:        "manual",
+		RequiredFiles: []string{"config.json", "tokenizer.json", "*.safetensors"},
+		Commands: []string{
+			"mkdir -p " + modelPath,
+			"find " + modelPath + " -maxdepth 1 \\( -name 'config.json' -o -name 'tokenizer.json' -o -name '*.safetensors' \\) -print",
+			"go run ./cmd/go-exotic run -model " + modelPath + " -prompt \"Hello\" -tokens 1",
+			"go run ./cmd/go-exotic routes -layers 4 -model " + modelID + " -json",
+			"go run ./cmd/go-exotic serve -addr 127.0.0.1:8089 -shard-model " + modelPath,
+		},
+	})
 }
 
 func (s *Server) handlePlacementPreview(w http.ResponseWriter, r *http.Request) {

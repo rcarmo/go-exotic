@@ -361,3 +361,9 @@
 - Added a small TypeScript storage helper for dashboard settings.
 - Persisted model ID, model path, and layer count in browser localStorage so planner inputs survive refreshes.
 - Kept the UI fully typechecked and rebuilt through `make check`.
+
+## Session 59: Model helper API
+
+- Added `GET /models/helpers` as a planning/manual-helper API for model fixture setup commands.
+- Updated the dashboard to fetch model helper commands from the server instead of duplicating command templates in TSX.
+- Added server test coverage and kept the web bundle typechecked/built through `make check`.

@@ -31,6 +31,7 @@ Implemented:
   - `GET /health`
   - `GET /capabilities`
   - `GET /placement/preview?layers=N&model=...`
+  - `GET /models/helpers?model=...&path=...` — manual model fixture helper commands
   - `GET /routes/preview?layers=N&model=...` — planning-only route preview from advertised capabilities
   - `POST /shards/execute` — gated behind explicit server wiring; disabled by the default CLI server
 - core packages for domain, placement, cluster, routing, runtime, protocol, and server surfaces

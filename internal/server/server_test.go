@@ -26,6 +26,22 @@ func TestServerServesWebUI(t *testing.T) {
 	}
 }
 
+func TestServerModelHelpers(t *testing.T) {
+	s := New(nil)
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/models/helpers?model=demo&path=/models/demo", nil))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", rr.Code, rr.Body.String())
+	}
+	var got protocol.ModelHelperResponse
+	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if got.Status != "manual" || len(got.RequiredFiles) != 3 || len(got.Commands) == 0 || !bytes.Contains(rr.Body.Bytes(), []byte("/models/demo")) {
+		t.Fatalf("unexpected model helpers: %+v", got)
+	}
+}
+
 func TestServerHealthCapabilitiesAndPlacement(t *testing.T) {
 	s := New([]protocol.Capability{{PeerID: "local", Device: exotic.Device{ID: "local", MemoryGB: 1, Backend: "go-pherence"}}})
 	h := s.Handler()

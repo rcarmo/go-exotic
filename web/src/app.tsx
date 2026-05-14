@@ -1,7 +1,7 @@
 import { render } from "preact";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import * as d3 from "d3";
-import { BoundaryStatus, CapabilityResponse, getJSON, LoadState, PlacementPreview, probeShardExecution, RoutePreview } from "./api";
+import { BoundaryStatus, CapabilityResponse, getJSON, LoadState, ModelHelperResponse, PlacementPreview, probeShardExecution, RoutePreview } from "./api";
 import { loadNumber, loadString, saveValue } from "./storage";
 import "./style.css";
 
@@ -29,6 +29,7 @@ function App() {
   const setModelPath = (value: string) => { setModelPathState(value); saveValue("go-exotic.modelPath", value); };
   const caps = useJSON<CapabilityResponse>("/capabilities");
   const boundary = useBoundaryStatus();
+  const helpers = useJSON<ModelHelperResponse>(`/models/helpers?model=${encodeURIComponent(model)}&path=${encodeURIComponent(modelPath)}`, [model, modelPath]);
   const placement = useJSON<PlacementPreview>(`/placement/preview?layers=${layers}&model=${encodeURIComponent(model)}`, [layers, model]);
   const routes = useJSON<RoutePreview>(`/routes/preview?layers=${layers}&model=${encodeURIComponent(model)}`, [layers, model]);
 
@@ -51,7 +52,7 @@ function App() {
     <section class="grid">
       <PeersCard state={caps} />
       <BoundaryCard state={boundary} />
-      <ModelHelpers model={model} modelPath={modelPath} />
+      <ModelHelpers model={model} modelPath={modelPath} state={helpers} />
     </section>
 
     <section class="grid wide">
@@ -104,20 +105,16 @@ function BoundaryCard({ state }: { state: LoadState<BoundaryStatus> }) {
   </section>;
 }
 
-function ModelHelpers({ model, modelPath }: { model: string; modelPath: string }) {
-  const safeModel = model.trim() || "MODEL";
-  const safePath = modelPath.trim() || `../go-pherence/models/${safeModel}`;
-  const commands = [
-    { label: "Create fixture directory", command: `mkdir -p ${safePath}` },
-    { label: "List required files", command: `find ${safePath} -maxdepth 1 \\( -name 'config.json' -o -name 'tokenizer.json' -o -name '*.safetensors' \\) -print` },
-    { label: "Local generation smoke", command: `go run ./cmd/go-exotic run -model ${safePath} -prompt "Hello" -tokens 1` },
-    { label: "Planning preview", command: `go run ./cmd/go-exotic routes -layers 4 -model ${safeModel} -json` },
-    { label: "Explicit shard-server opt-in", command: `go run ./cmd/go-exotic serve -addr 127.0.0.1:8089 -shard-model ${safePath}` },
-  ];
+const commandLabels = ["Create fixture directory", "List required files", "Local generation smoke", "Planning preview", "Explicit shard-server opt-in"];
+
+function ModelHelpers({ state }: { model: string; modelPath: string; state: LoadState<ModelHelperResponse> }) {
+  const commands = (state.data?.commands || []).map((command, i) => ({ label: commandLabels[i] || `Command ${i + 1}`, command }));
   return <section class="card">
     <h2>Model helpers</h2>
     <p>Download orchestration is not automated yet. Stage a local go-pherence model fixture, then run the smoke checks below.</p>
-    <ol>{["config.json", "tokenizer.json", "*.safetensors"].map((item) => <li>{item}</li>)}</ol>
+    {state.loading && <p>Loading model helpers…</p>}
+    {state.error && <p class="error">{state.error}</p>}
+    <ol>{(state.data?.required_files || ["config.json", "tokenizer.json", "*.safetensors"]).map((item) => <li>{item}</li>)}</ol>
     <div class="commands">{commands.map((item) => <CommandRow key={item.label} label={item.label} command={item.command} />)}</div>
   </section>;
 }

@@ -30,6 +30,12 @@ type RouteEntry struct {
 	Shard     exotic.Shard `json:"shard"`
 }
 
+type ModelHelperResponse struct {
+	Status        string   `json:"status"`
+	RequiredFiles []string `json:"required_files"`
+	Commands      []string `json:"commands"`
+}
+
 type HealthResponse struct {
 	Status string `json:"status"`
 }

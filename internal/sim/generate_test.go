@@ -45,8 +45,17 @@ func TestGenerateTokensRejectsMalformedInputs(t *testing.T) {
 		return protocol.ShardExecutionResponse{}, nil
 	})})
 	base := protocol.ShardExecutionRequest{SessionID: "s", RequestID: "r", ModelID: "m", Position: 0, HiddenSize: 1, Activation: []float32{1}}
+	if _, err := (*Simulator)(nil).GenerateTokens(context.Background(), nil, base, 1, 1, func([]float32) (int, error) { return 0, nil }); err == nil {
+		t.Fatal("accepted nil simulator")
+	}
 	if _, err := s.GenerateTokens(context.Background(), nil, base, 1, -1, func([]float32) (int, error) { return 0, nil }); err == nil {
 		t.Fatal("accepted negative maxTokens")
+	}
+	maxInt := int(^uint(0) >> 1)
+	badPos := base
+	badPos.Position = maxInt
+	if _, err := s.GenerateTokens(context.Background(), nil, badPos, 1, 2, func([]float32) (int, error) { return 0, nil }); err == nil {
+		t.Fatal("accepted overflowing generation positions")
 	}
 	if _, err := s.GenerateTokens(context.Background(), nil, base, 1, 1, nil); err == nil {
 		t.Fatal("accepted nil projector")

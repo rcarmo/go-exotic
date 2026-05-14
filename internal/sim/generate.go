@@ -17,8 +17,15 @@ type TokenProjector func([]float32) (int, error)
 // first end-to-end N-shard token-generation harness and intentionally does not
 // claim numerical parity with go-pherence yet.
 func (s *Simulator) GenerateTokens(ctx context.Context, routes []router.Route, base protocol.ShardExecutionRequest, totalLayers, maxTokens int, project TokenProjector) ([]int, error) {
+	if s == nil {
+		return nil, fmt.Errorf("nil simulator")
+	}
 	if maxTokens < 0 {
 		return nil, fmt.Errorf("maxTokens %d out of range", maxTokens)
+	}
+	maxInt := int(^uint(0) >> 1)
+	if maxTokens > 0 && base.Position > maxInt-(maxTokens-1) {
+		return nil, fmt.Errorf("generation positions overflow: start=%d count=%d", base.Position, maxTokens)
 	}
 	if project == nil {
 		return nil, fmt.Errorf("nil token projector")

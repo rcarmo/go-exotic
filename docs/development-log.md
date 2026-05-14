@@ -157,3 +157,10 @@
 - Audited simulator shard response validation for route/peer mismatch edges.
 - Added an explicit check that each shard response `PeerID` matches the route peer that executed the shard.
 - Added regression coverage rejecting a worker response that claims a different peer ID.
+
+## Session 27: Synthetic generation loop audit
+
+- Audited `Simulator.GenerateTokens` for nil receiver and decode-position overflow edges.
+- Added explicit nil simulator rejection before generation setup.
+- Added checked position range validation so `base.Position + step` cannot overflow during multi-token synthetic generation.
+- Added regression coverage for nil simulator and overflowing generation positions.

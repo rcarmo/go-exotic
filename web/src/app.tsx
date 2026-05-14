@@ -146,7 +146,7 @@ function ModelHelpers({ state, localModels, modelRoot, onSelectPreset }: { state
     {state.data?.presets && <div class="presets">{state.data.presets.map((preset) => <button type="button" key={preset.id} onClick={() => onSelectPreset(preset.id, preset.path)} title={preset.description}>{preset.name}</button>)}</div>}
     <div class="local-models"><strong>Local fixtures</strong><small>root: {modelRoot}</small>{localModels.data && <span class="inventory-summary">{completeCount}/{modelCount} complete</span>}{localModels.loading && <span>Scanning…</span>}{localModels.error && <span class="error">{localModels.error}</span>}{localModels.data?.truncated && <span class="warn">showing first {localModels.data.limit}</span>}{localModels.data?.models.map((item) => <button type="button" class={item.complete ? "complete" : "incomplete"} key={item.path} onClick={() => onSelectPreset(item.id, item.path)}>{item.complete ? "✓" : "…"} {item.id}</button>)}</div>
     {state.data?.files ? <ul class="file-status">{state.data.files.map((file) => <li class={file.present ? "present" : "missing"} key={file.pattern}>
-      <span>{file.present ? "✓" : "×"}</span> <strong>{file.pattern}</strong> <small>{file.matches?.join(", ") || "not found"}</small>
+      <span>{file.present ? "✓" : "×"}</span> <strong>{file.pattern}</strong> <small>{file.matches?.join(", ") || "not found"}{file.truncated ? ` … first ${file.limit}` : ""}</small>
     </li>)}</ul> : <ol>{["config.json", "tokenizer.json", "*.safetensors"].map((item) => <li>{item}</li>)}</ol>}
     <div class="commands">{commands.map((item) => <CommandRow key={item.label} label={item.label} command={item.command} />)}</div>
   </section>;

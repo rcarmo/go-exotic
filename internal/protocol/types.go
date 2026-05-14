@@ -38,9 +38,11 @@ type ModelPreset struct {
 }
 
 type ModelFileStatus struct {
-	Pattern string   `json:"pattern"`
-	Present bool     `json:"present"`
-	Matches []string `json:"matches,omitempty"`
+	Pattern   string   `json:"pattern"`
+	Present   bool     `json:"present"`
+	Matches   []string `json:"matches,omitempty"`
+	Truncated bool     `json:"truncated,omitempty"`
+	Limit     int      `json:"limit,omitempty"`
 }
 
 type LocalModel struct {

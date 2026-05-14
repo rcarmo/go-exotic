@@ -491,3 +491,9 @@
 - Audited recent dashboard API changes for concrete logic smells.
 - Fixed successful-response JSON parsing so malformed JSON is reported as an API error instead of silently becoming undefined data.
 - Simplified dashboard fetch hooks to derive dependencies from the request path and use functional state updates, removing stale-closure lint suppressions.
+
+## Session 82: Model file status audit fix
+
+- Audited recent UI/API hardening for remaining unbounded response shapes.
+- Found that model file match lists could grow without limit even when the local model directory inventory was bounded.
+- Capped per-pattern file matches at 20, exposed truncation metadata, and updated the dashboard to show when file lists are abbreviated.

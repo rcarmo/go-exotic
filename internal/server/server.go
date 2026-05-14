@@ -22,7 +22,10 @@ import (
 	"github.com/rcarmo/go-exotic/internal/router"
 )
 
-const maxLocalModelInventory = 200
+const (
+	maxLocalModelInventory    = 200
+	maxModelFileStatusMatches = 20
+)
 
 type ShardWorker interface {
 	ExecuteShard(context.Context, protocol.ShardExecutionRequest) (protocol.ShardExecutionResponse, error)
@@ -386,7 +389,11 @@ func modelFileStatuses(modelPath string, required []string) []protocol.ModelFile
 			matches[i] = filepath.Base(matches[i])
 		}
 		sort.Strings(matches)
-		out = append(out, protocol.ModelFileStatus{Pattern: pattern, Present: len(matches) > 0, Matches: matches})
+		truncated := len(matches) > maxModelFileStatusMatches
+		if truncated {
+			matches = matches[:maxModelFileStatusMatches]
+		}
+		out = append(out, protocol.ModelFileStatus{Pattern: pattern, Present: len(matches) > 0, Matches: matches, Truncated: truncated, Limit: maxModelFileStatusMatches})
 	}
 	return out
 }

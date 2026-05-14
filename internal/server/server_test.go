@@ -69,6 +69,22 @@ func TestServerLocalModels(t *testing.T) {
 	}
 }
 
+func TestServerModelFileStatusTruncatesMatches(t *testing.T) {
+	root := t.TempDir()
+	for i := 0; i < maxModelFileStatusMatches+1; i++ {
+		if err := os.WriteFile(filepath.Join(root, fmt.Sprintf("weights-%03d.safetensors", i)), []byte("x"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	statuses := modelFileStatuses(root, []string{"*.safetensors"})
+	if len(statuses) != 1 || !statuses[0].Present || !statuses[0].Truncated || statuses[0].Limit != maxModelFileStatusMatches || len(statuses[0].Matches) != maxModelFileStatusMatches {
+		t.Fatalf("unexpected file status: %+v", statuses)
+	}
+	if statuses[0].Matches[len(statuses[0].Matches)-1] != fmt.Sprintf("weights-%03d.safetensors", maxModelFileStatusMatches-1) {
+		t.Fatalf("matches were not sorted before truncation: %+v", statuses[0].Matches)
+	}
+}
+
 func TestServerLocalModelsRejectsBadLimit(t *testing.T) {
 	root := t.TempDir()
 	s := New(nil)

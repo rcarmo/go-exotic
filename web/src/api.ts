@@ -14,7 +14,7 @@ export type RoutePreview = { model_id: string; layers: number; routes: RouteEntr
 export type LoadState<T> = { loading: boolean; data?: T; error?: string };
 
 export type ModelPreset = { id: string; name: string; path: string; description: string };
-export type ModelFileStatus = { pattern: string; present: boolean; matches?: string[] };
+export type ModelFileStatus = { pattern: string; present: boolean; matches?: string[]; truncated?: boolean; limit?: number };
 export type LocalModel = { id: string; path: string; files: ModelFileStatus[]; complete: boolean };
 export type LocalModelsResponse = { root: string; models: LocalModel[]; truncated: boolean; limit: number };
 export type ModelCommand = { label: string; command: string };

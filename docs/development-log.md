@@ -320,3 +320,9 @@
 - Audited advertised route-preview addresses for wildcard listen hosts.
 - Normalized `0.0.0.0:PORT` and `[::]:PORT` to `http://127.0.0.1:PORT` in local capability metadata so route previews do not advertise unusable wildcard endpoints.
 - Added command-package regression coverage for wildcard address normalization.
+
+## Session 53: Shard execution JSON body audit
+
+- Audited `/shards/execute` request parsing.
+- Tightened the handler to reject trailing JSON values after the request object, preventing ambiguous request bodies from being accepted.
+- Added regression coverage for extra trailing JSON in shard execution requests.

@@ -74,4 +74,15 @@ func TestShardExecuteRejectsMalformedPayload(t *testing.T) {
 	if rr.Code != http.StatusBadRequest {
 		t.Fatalf("status=%d body=%s", rr.Code, rr.Body.String())
 	}
+	req := protocol.ShardExecutionRequest{SessionID: "s", RequestID: "r", ModelID: "m", Shard: exotic.Shard{DeviceID: "p", StartLayer: 0, EndLayer: 0}, Position: 0, HiddenSize: 1, Activation: []float32{1}}
+	wire, err := protocol.NewShardExecutionHTTPBridgeRequest(req)
+	if err != nil {
+		t.Fatalf("wire: %v", err)
+	}
+	body, _ := json.Marshal(wire)
+	rr = httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodPost, "/shards/execute", bytes.NewReader(append(body, []byte(` {}`)...))))
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("status=%d want 400 for trailing JSON body=%s", rr.Code, rr.Body.String())
+	}
 }

@@ -200,3 +200,9 @@
 - Added a shared SmolLM2 fixture helper with an explicit skip path via `GO_EXOTIC_SMOLLM2_MODEL` or the local `go-pherence` fixture path.
 - Added a focused Phase 8 parity test comparing multi-shard simulator execution through `PherenceLayerExecutor` against direct sequential `go-pherence` `ForwardLayer` execution for one embedded token.
 - This validates layer hidden-state parity through the real local shard path. Full one-token output parity against `Generate` remains pending a final logits/projection API or equivalent exported helper.
+
+## Session 34: One-token real-shard output parity
+
+- Used the exported `go-pherence` `FinishCPUDecodeStep` hook to complete one-token output parity for the local real-shard path.
+- Upgraded the real-shard parity test to compare the greedy token produced from routed multi-shard activation against the token produced from direct sequential `ForwardLayer` activation.
+- Kept the direct full-model adapter parity test as a separate fixture-backed gate.

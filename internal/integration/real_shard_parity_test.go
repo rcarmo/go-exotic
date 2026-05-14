@@ -14,7 +14,7 @@ import (
 	pherencemodel "github.com/rcarmo/go-pherence/model"
 )
 
-func TestRealShardHiddenStateMatchesSequentialForwardLayer(t *testing.T) {
+func TestRealShardOneTokenOutputMatchesSequentialForwardLayer(t *testing.T) {
 	modelPath := smolLM2FixturePath(t)
 	m, err := pherencemodel.LoadLlama(modelPath)
 	if err != nil {
@@ -69,5 +69,16 @@ func TestRealShardHiddenStateMatchesSequentialForwardLayer(t *testing.T) {
 		if math.Abs(float64(resp.Activation[i]-want[i])) > 1e-6 {
 			t.Fatalf("activation[%d]=%g want %g", i, resp.Activation[i], want[i])
 		}
+	}
+	_, _, wantToken, err := m.FinishCPUDecodeStep(want)
+	if err != nil {
+		t.Fatalf("direct FinishCPUDecodeStep: %v", err)
+	}
+	_, _, gotToken, err := m.FinishCPUDecodeStep(resp.Activation)
+	if err != nil {
+		t.Fatalf("sharded FinishCPUDecodeStep: %v", err)
+	}
+	if gotToken != wantToken {
+		t.Fatalf("token=%d want %d", gotToken, wantToken)
 	}
 }

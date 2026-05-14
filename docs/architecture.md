@@ -103,4 +103,8 @@ A single-host integration test now routes a synthetic two-layer `go-pherence` mo
 
 ## Phase 8 parity gate status
 
-The integration suite now has a documented SmolLM2 fixture skip path: set `GO_EXOTIC_SMOLLM2_MODEL` or provide `../go-pherence/models/smollm2-135m`. When available, `TestRealShardHiddenStateMatchesSequentialForwardLayer` compares routed multi-shard simulator execution against direct sequential `go-pherence` `ForwardLayer` execution for one embedded token. Full next-token output parity against `Generate` remains pending until the final norm/LM-head projection path is exposed cleanly for shard-driven hidden states.
+The integration suite now has a documented SmolLM2 fixture skip path: set `GO_EXOTIC_SMOLLM2_MODEL` or provide `../go-pherence/models/smollm2-135m`. When available, `TestRealShardHiddenStateMatchesSequentialForwardLayer` compares routed multi-shard simulator execution against direct sequential `go-pherence` `ForwardLayer` execution for one embedded token. One-token output parity now uses `go-pherence` `FinishCPUDecodeStep` to project both direct sequential and routed shard activations through the same final norm/LM-head path. Direct full-model adapter parity remains covered by a separate fixture-backed generation test.
+
+## One-token output parity
+
+`TestRealShardOneTokenOutputMatchesSequentialForwardLayer` verifies that routed multi-shard execution and direct sequential `ForwardLayer` execution produce the same final hidden state and greedy next token after `FinishCPUDecodeStep`. This closes the local Phase 8 output parity gate without enabling remote HTTP shard execution.

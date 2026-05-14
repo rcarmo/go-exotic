@@ -4,6 +4,9 @@
 coverage.out
 /go-exotic
 
+# Bun/npm dependencies
+node_modules/
+
 # Local/editor files
 .DS_Store
 .idea/

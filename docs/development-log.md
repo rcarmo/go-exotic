@@ -333,3 +333,11 @@
 - Reviewed README, architecture, and closeout docs after route-preview, registry-backed planning, remote-worker-map, address-normalization, and shard JSON parsing audits.
 - Updated stale architecture sections that still described route preview and layer execution as future-only work.
 - Clarified the current boundary: planning/test orchestration helpers are implemented, while default CLI/LAN distributed generation remains disabled.
+
+
+## Session 55: Bun TypeScript web UI
+
+- Added a Bun/TypeScript web UI under `web/src` using Preact and D3.
+- Bundled the UI into `web/static/app.js` and `app.css`, served by the Go HTTP server at `/` and `/static/`.
+- The dashboard displays peers, placement preview, route preview, and model setup helper commands.
+- Added server tests for serving the UI and wired `make check` to rebuild the web bundle.

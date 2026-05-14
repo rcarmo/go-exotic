@@ -2,12 +2,15 @@ TMPDIR ?= /workspace/tmp
 GOTMPDIR ?= /workspace/tmp
 export TMPDIR GOTMPDIR
 
-.PHONY: all fmt test vet check run clean
+.PHONY: all fmt web test vet check run clean
 
 all: check
 
 fmt:
 	gofmt -w ./cmd ./internal
+
+web:
+	bun run build:web
 
 test:
 	go test ./...
@@ -15,7 +18,7 @@ test:
 vet:
 	go vet ./...
 
-check: fmt test vet
+check: fmt web test vet
 	git diff --check
 
 run:

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +11,20 @@ import (
 	"github.com/rcarmo/go-exotic/internal/exotic"
 	"github.com/rcarmo/go-exotic/internal/protocol"
 )
+
+func TestServerServesWebUI(t *testing.T) {
+	s := New(nil, WithWebDir("../../web"))
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/", nil))
+	if rr.Code != http.StatusOK || !bytes.Contains(rr.Body.Bytes(), []byte("go-exotic planner")) {
+		t.Fatalf("web status=%d body=%s", rr.Code, rr.Body.String())
+	}
+	rr = httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/static/app.js", nil))
+	if rr.Code != http.StatusOK || rr.Body.Len() == 0 {
+		t.Fatalf("static status=%d len=%d", rr.Code, rr.Body.Len())
+	}
+}
 
 func TestServerHealthCapabilitiesAndPlacement(t *testing.T) {
 	s := New([]protocol.Capability{{PeerID: "local", Device: exotic.Device{ID: "local", MemoryGB: 1, Backend: "go-pherence"}}})

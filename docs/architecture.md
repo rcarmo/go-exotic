@@ -168,3 +168,8 @@ Servers can be constructed with `server.WithRegistry(registry)` to have `/routes
 ## Documentation audit status
 
 This document was refreshed after the route-preview, registry-backed planning, remote-worker-map, and HTTP parsing audit work. The current boundary is: planning and explicit test/orchestration helpers are implemented; default CLI/LAN distributed generation remains disabled.
+
+
+## Web UI
+
+The server serves a small dashboard at `/` plus bundled static assets under `/static/`. The UI source is TypeScript/TSX in `web/src`, built with Bun into `web/static/app.js` and `web/static/app.css`. Preact and D3 are bundled into the generated asset from vendored Bun dependencies, and the dashboard currently shows peers, placement previews, route previews, and model setup helper commands.

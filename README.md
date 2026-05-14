@@ -43,6 +43,7 @@ Implemented:
 - single-host real-shard hidden-state and one-token output parity gates
 - disabled-by-default HTTP shard execution bridge with request IDs, context cancellation, timeouts, strict JSON request parsing, and httptest coverage
 - registry-backed and CLI route-preview helpers plus explicit remote-worker maps for tests/orchestration
+- Bun/TypeScript web UI built with bundled Preact and D3 for peers, placement, routes, and model-helper commands
 
 Deferred:
 
@@ -65,7 +66,7 @@ go run ./cmd/go-exotic run -model ../go-pherence/models/smollm2-135m -prompt "He
 go run ./cmd/go-exotic serve -addr 127.0.0.1:8089
 ```
 
-Example API calls while `serve` is running:
+Open the web UI at `http://127.0.0.1:8089/` while `serve` is running. Example API calls:
 
 ```bash
 curl http://127.0.0.1:8089/health
@@ -119,3 +120,14 @@ This wires `server.WithShardExecution` to a local `runtime.PherenceLayerExecutor
 ### CLI route preview
 
 `go-exotic routes -layers N [-model ID] [-json]` mirrors the route-planning behavior of `/routes/preview` for local capabilities. It is planning-only and does not call `/shards/execute`.
+
+### Web UI development
+
+The dashboard is written in TypeScript under `web/src` and built with Bun:
+
+```bash
+bun install
+bun run build:web
+```
+
+The generated `web/static/app.js` bundle includes Preact and D3 from the Bun dependency graph, so the running Go server has no browser-time package-manager dependency. `make check` rebuilds the UI.

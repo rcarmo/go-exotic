@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/rcarmo/go-exotic/internal/cluster"
@@ -24,9 +26,16 @@ type Server struct {
 	registry     *cluster.Registry
 	shardWorker  ShardWorker
 	totalLayers  int
+	webDir       string
 }
 
 type Option func(*Server)
+
+func WithWebDir(dir string) Option {
+	return func(s *Server) {
+		s.webDir = dir
+	}
+}
 
 func WithRegistry(registry *cluster.Registry) Option {
 	return func(s *Server) {
@@ -58,12 +67,43 @@ func New(capabilities []protocol.Capability, opts ...Option) *Server {
 
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
+	mux.HandleFunc("/", s.handleWeb)
+	mux.HandleFunc("/static/", s.handleStatic)
 	mux.HandleFunc("/health", s.handleHealth)
 	mux.HandleFunc("/capabilities", s.handleCapabilities)
 	mux.HandleFunc("/placement/preview", s.handlePlacementPreview)
 	mux.HandleFunc("/routes/preview", s.handleRoutesPreview)
 	mux.HandleFunc("/shards/execute", s.handleShardExecute)
 	return mux
+}
+
+func (s *Server) handleWeb(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	dir := s.webDir
+	if dir == "" {
+		dir = "web"
+	}
+	http.ServeFile(w, r, filepath.Join(dir, "index.html"))
+}
+
+func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	dir := s.webDir
+	if dir == "" {
+		dir = "web"
+	}
+	fs := http.FileServer(http.FS(os.DirFS(filepath.Join(dir, "static"))))
+	http.StripPrefix("/static/", fs).ServeHTTP(w, r)
 }
 
 func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {

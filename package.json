@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "build:web": "bun build web/src/app.tsx --target=browser --outdir=web/static --entry-naming='[dir]/app.[ext]' --asset-naming='[dir]/[name].[ext]' --minify"
+  },
+  "dependencies": {
+    "@preact/preset-vite": "latest",
+    "d3": "^7.9.0",
+    "preact": "^10.26.9"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

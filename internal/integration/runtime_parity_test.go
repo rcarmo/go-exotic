@@ -2,7 +2,6 @@ package integration
 
 import (
 	"context"
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -12,10 +11,7 @@ import (
 )
 
 func TestLocalRuntimeAdapterMatchesDirectGoPherenceGeneration(t *testing.T) {
-	modelPath := filepath.Clean("../../../go-pherence/models/smollm2-135m")
-	if _, err := os.Stat(filepath.Join(modelPath, "config.json")); err != nil {
-		t.Skipf("SmolLM2 fixture unavailable: %v", err)
-	}
+	modelPath := smolLM2FixturePath(t)
 	ctx := context.Background()
 	adapter := runtime.NewPherenceAdapter()
 	got, err := adapter.Generate(ctx, modelPath, "Hello", 1)

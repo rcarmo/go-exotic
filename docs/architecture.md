@@ -100,3 +100,7 @@ These checks keep the local real-layer path safe while Phase 8 parity work is st
 ## Real layer simulation status
 
 A single-host integration test now routes a synthetic two-layer `go-pherence` model across two `LayerExecutorWorker` instances backed by `PherenceLayerExecutor`. This proves the real local `ForwardLayer` path can be driven through routing and simulation. Full numerical parity against direct generation is still pending.
+
+## Phase 8 parity gate status
+
+The integration suite now has a documented SmolLM2 fixture skip path: set `GO_EXOTIC_SMOLLM2_MODEL` or provide `../go-pherence/models/smollm2-135m`. When available, `TestRealShardHiddenStateMatchesSequentialForwardLayer` compares routed multi-shard simulator execution against direct sequential `go-pherence` `ForwardLayer` execution for one embedded token. Full next-token output parity against `Generate` remains pending until the final norm/LM-head projection path is exposed cleanly for shard-driven hidden states.

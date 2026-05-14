@@ -194,3 +194,9 @@
 - Added an in-process integration test that routes a synthetic two-layer `go-pherence` model across two simulated shard workers backed by `PherenceLayerExecutor`.
 - The test validates that real local `ForwardLayer` execution can be driven through the `router` + `sim.LayerExecutorWorker` path without remote transport.
 - This is a structural real-shard execution gate; numerical parity against full-model generation remains the next Phase 8 item.
+
+## Session 33: Real-shard hidden-state parity gate
+
+- Added a shared SmolLM2 fixture helper with an explicit skip path via `GO_EXOTIC_SMOLLM2_MODEL` or the local `go-pherence` fixture path.
+- Added a focused Phase 8 parity test comparing multi-shard simulator execution through `PherenceLayerExecutor` against direct sequential `go-pherence` `ForwardLayer` execution for one embedded token.
+- This validates layer hidden-state parity through the real local shard path. Full one-token output parity against `Generate` remains pending a final logits/projection API or equivalent exported helper.

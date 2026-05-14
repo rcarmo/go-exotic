@@ -475,3 +475,8 @@
 
 - Hardened dashboard numeric controls to handle empty or non-finite input without generating invalid API requests.
 - Added visible invalid styling for out-of-range numeric fields.
+
+## Session 79: Dashboard API error details
+
+- Added a typed `APIError` for dashboard JSON fetches that includes HTTP status and status text.
+- Hardened JSON parsing so non-JSON error bodies still surface useful text instead of a parse exception.

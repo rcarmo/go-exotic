@@ -25,11 +25,27 @@ export type BoundaryStatus = {
   detail: string;
 };
 
+export class APIError extends Error {
+  constructor(public status: number, public statusText: string, message: string) {
+    super(`${status} ${statusText}: ${message}`);
+    this.name = "APIError";
+  }
+}
+
+function parseJSON(text: string): unknown {
+  if (!text) return undefined;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
+}
+
 export async function getJSON<T>(path: string): Promise<T> {
   const res = await fetch(path, { headers: { accept: "application/json" } });
   const text = await res.text();
-  const parsed = text ? JSON.parse(text) : undefined;
-  if (!res.ok) throw new Error(parsed?.error || `${res.status} ${res.statusText}`);
+  const parsed = parseJSON(text) as { error?: string } | undefined;
+  if (!res.ok) throw new APIError(res.status, res.statusText, parsed?.error || text || "request failed");
   return parsed as T;
 }
 

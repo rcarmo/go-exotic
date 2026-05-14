@@ -382,18 +382,24 @@ func modelPresets() []protocol.ModelPreset {
 }
 
 func modelFileStatuses(modelPath string, required []string) []protocol.ModelFileStatus {
+	entries, _ := os.ReadDir(modelPath)
 	out := make([]protocol.ModelFileStatus, 0, len(required))
 	for _, pattern := range required {
-		matches, _ := filepath.Glob(filepath.Join(modelPath, pattern))
-		for i := range matches {
-			matches[i] = filepath.Base(matches[i])
+		matches := make([]string, 0)
+		for _, entry := range entries {
+			matched, err := filepath.Match(pattern, entry.Name())
+			if err == nil && matched {
+				matches = append(matches, entry.Name())
+			}
 		}
 		sort.Strings(matches)
 		truncated := len(matches) > maxModelFileStatusMatches
+		limit := 0
 		if truncated {
 			matches = matches[:maxModelFileStatusMatches]
+			limit = maxModelFileStatusMatches
 		}
-		out = append(out, protocol.ModelFileStatus{Pattern: pattern, Present: len(matches) > 0, Matches: matches, Truncated: truncated, Limit: maxModelFileStatusMatches})
+		out = append(out, protocol.ModelFileStatus{Pattern: pattern, Present: len(matches) > 0, Matches: matches, Truncated: truncated, Limit: limit})
 	}
 	return out
 }

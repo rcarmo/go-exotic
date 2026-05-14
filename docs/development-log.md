@@ -497,3 +497,10 @@
 - Audited recent UI/API hardening for remaining unbounded response shapes.
 - Found that model file match lists could grow without limit even when the local model directory inventory was bounded.
 - Capped per-pattern file matches at 20, exposed truncation metadata, and updated the dashboard to show when file lists are abbreviated.
+
+## Session 83: Model file status glob audit
+
+- Audited file-status scanning and found that user-supplied model paths containing glob metacharacters could be interpreted by `filepath.Glob`.
+- Replaced whole-path globbing with literal directory enumeration plus `filepath.Match` against base names.
+- Avoided serializing per-file match limits unless a match list is actually truncated.
+- Verified the server/protocol race tests using a workspace `TMPDIR` to avoid the container noexec `/tmp` restriction.

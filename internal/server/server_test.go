@@ -69,6 +69,20 @@ func TestServerLocalModels(t *testing.T) {
 	}
 }
 
+func TestServerModelFileStatusEscapesModelPathGlobChars(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "model[1]")
+	if err := os.Mkdir(root, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "model.safetensors"), []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	statuses := modelFileStatuses(root, []string{"*.safetensors"})
+	if len(statuses) != 1 || !statuses[0].Present || statuses[0].Truncated || statuses[0].Limit != 0 || len(statuses[0].Matches) != 1 {
+		t.Fatalf("unexpected file status for glob-like path: %+v", statuses)
+	}
+}
+
 func TestServerModelFileStatusTruncatesMatches(t *testing.T) {
 	root := t.TempDir()
 	for i := 0; i < maxModelFileStatusMatches+1; i++ {

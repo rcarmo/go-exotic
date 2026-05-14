@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/rcarmo/go-exotic/internal/cluster"
@@ -27,9 +29,16 @@ func TestServerServesWebUI(t *testing.T) {
 }
 
 func TestServerModelHelpers(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "config.json"), []byte("{}"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "model.safetensors"), []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	s := New(nil)
 	rr := httptest.NewRecorder()
-	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/models/helpers?model=demo&path=/models/demo", nil))
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/models/helpers?model=demo&path="+dir, nil))
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status=%d body=%s", rr.Code, rr.Body.String())
 	}
@@ -37,7 +46,10 @@ func TestServerModelHelpers(t *testing.T) {
 	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
 		t.Fatalf("decode: %v", err)
 	}
-	if got.Status != "manual" || len(got.RequiredFiles) != 3 || len(got.Commands) == 0 || !bytes.Contains(rr.Body.Bytes(), []byte("/models/demo")) {
+	if got.Status != "manual" || got.ModelPath != dir || len(got.RequiredFiles) != 3 || len(got.Commands) == 0 || !bytes.Contains(rr.Body.Bytes(), []byte(dir)) {
+		t.Fatalf("unexpected model helpers: %+v", got)
+	}
+	if len(got.Files) != 3 || !got.Files[0].Present || got.Files[1].Present || !got.Files[2].Present {
 		t.Fatalf("unexpected model helpers: %+v", got)
 	}
 }

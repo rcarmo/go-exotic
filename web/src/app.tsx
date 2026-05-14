@@ -114,7 +114,9 @@ function ModelHelpers({ state }: { model: string; modelPath: string; state: Load
     <p>Download orchestration is not automated yet. Stage a local go-pherence model fixture, then run the smoke checks below.</p>
     {state.loading && <p>Loading model helpers…</p>}
     {state.error && <p class="error">{state.error}</p>}
-    <ol>{(state.data?.required_files || ["config.json", "tokenizer.json", "*.safetensors"]).map((item) => <li>{item}</li>)}</ol>
+    {state.data?.files ? <ul class="file-status">{state.data.files.map((file) => <li class={file.present ? "present" : "missing"} key={file.pattern}>
+      <span>{file.present ? "✓" : "×"}</span> <strong>{file.pattern}</strong> <small>{file.matches?.join(", ") || "not found"}</small>
+    </li>)}</ul> : <ol>{["config.json", "tokenizer.json", "*.safetensors"].map((item) => <li>{item}</li>)}</ol>}
     <div class="commands">{commands.map((item) => <CommandRow key={item.label} label={item.label} command={item.command} />)}</div>
   </section>;
 }

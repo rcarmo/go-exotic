@@ -177,4 +177,4 @@ The server serves a small dashboard at `/` plus bundled static assets under `/st
 
 ## Model helper API
 
-`GET /models/helpers?model=...&path=...` returns manual model fixture setup commands and required file names for the dashboard. It is intentionally non-mutating: it does not download models or write files.
+`GET /models/helpers?model=...&path=...` returns manual model fixture setup commands, required file names, and read-only file presence status for the dashboard. It is intentionally non-mutating: it does not download models or write files.

@@ -367,3 +367,9 @@
 - Added `GET /models/helpers` as a planning/manual-helper API for model fixture setup commands.
 - Updated the dashboard to fetch model helper commands from the server instead of duplicating command templates in TSX.
 - Added server test coverage and kept the web bundle typechecked/built through `make check`.
+
+## Session 60: Model fixture file status
+
+- Extended `/models/helpers` with read-only model fixture file status for `config.json`, `tokenizer.json`, and `*.safetensors`.
+- Updated the dashboard model-helper panel to show present/missing required files while keeping downloads and writes manual.
+- Added server test coverage for present and missing fixture files.

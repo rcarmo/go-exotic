@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 
 	"github.com/rcarmo/go-exotic/internal/cluster"
@@ -136,9 +137,12 @@ func (s *Server) handleModelHelpers(w http.ResponseWriter, r *http.Request) {
 	if modelPath == "" {
 		modelPath = "../go-pherence/models/" + modelID
 	}
+	required := []string{"config.json", "tokenizer.json", "*.safetensors"}
 	writeJSON(w, http.StatusOK, protocol.ModelHelperResponse{
 		Status:        "manual",
-		RequiredFiles: []string{"config.json", "tokenizer.json", "*.safetensors"},
+		ModelPath:     modelPath,
+		RequiredFiles: required,
+		Files:         modelFileStatuses(modelPath, required),
 		Commands: []string{
 			"mkdir -p " + modelPath,
 			"find " + modelPath + " -maxdepth 1 \\( -name 'config.json' -o -name 'tokenizer.json' -o -name '*.safetensors' \\) -print",
@@ -247,6 +251,19 @@ func (s *Server) handleShardExecute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, out)
+}
+
+func modelFileStatuses(modelPath string, required []string) []protocol.ModelFileStatus {
+	out := make([]protocol.ModelFileStatus, 0, len(required))
+	for _, pattern := range required {
+		matches, _ := filepath.Glob(filepath.Join(modelPath, pattern))
+		for i := range matches {
+			matches[i] = filepath.Base(matches[i])
+		}
+		sort.Strings(matches)
+		out = append(out, protocol.ModelFileStatus{Pattern: pattern, Present: len(matches) > 0, Matches: matches})
+	}
+	return out
 }
 
 func positiveIntQuery(r *http.Request, name string) (int, error) {

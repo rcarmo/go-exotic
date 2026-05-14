@@ -104,3 +104,9 @@
 - Refreshed README, architecture, and exo reference docs after completing placement hardening, runtime adapter, CLI/API skeleton, cluster registry, routing, and in-process integration tests.
 - Documented current implemented/deferred surfaces and quiet/verbose serve behavior.
 - Reaffirmed that remote shard execution and OpenAI-compatible generation remain deferred.
+
+## Session 18: Shard execution protocol
+
+- Added protocol DTOs for `ShardExecutionRequest` and `ShardExecutionResponse` around explicit layer ranges, positions, hidden sizes, and activation vectors.
+- Added validation and JSON round-trip tests for malformed shard execution requests/responses.
+- Updated the runtime `LayerShardExecutor` hook to use the protocol DTOs while remote execution remains disabled.

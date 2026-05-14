@@ -53,7 +53,7 @@ The current `internal/runtime.Adapter` supports:
 - tokenization
 - local full-model generation
 
-The future `LayerShardExecutor` shape is present but intentionally not implemented. It will be used only after activation serialization, KV/state ownership, and multi-worker simulation are tested.
+The future `LayerShardExecutor` shape uses `protocol.ShardExecutionRequest` and `protocol.ShardExecutionResponse`, which carry session/request IDs, explicit layer ranges, positions, hidden size, and activation vectors. The executor remains intentionally not implemented until activation serialization, KV/state ownership, and multi-worker simulation are tested.
 
 ## Validation baseline
 

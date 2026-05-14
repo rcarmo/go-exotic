@@ -1,6 +1,10 @@
 package runtime
 
-import "context"
+import (
+	"context"
+
+	"github.com/rcarmo/go-exotic/internal/protocol"
+)
 
 // Metadata is the backend-neutral model information needed by placement.
 type Metadata struct {
@@ -22,17 +26,5 @@ type Adapter interface {
 // LayerShardExecutor is intentionally not implemented yet. It reserves the
 // shape of the future distributed runtime boundary without enabling it.
 type LayerShardExecutor interface {
-	ExecuteLayerShard(ctx context.Context, request ShardRequest) (ShardResult, error)
-}
-
-type ShardRequest struct {
-	ModelPath  string
-	StartLayer int
-	EndLayer   int
-	Position   int
-	Activation []float32
-}
-
-type ShardResult struct {
-	Activation []float32
+	ExecuteLayerShard(ctx context.Context, request protocol.ShardExecutionRequest) (protocol.ShardExecutionResponse, error)
 }

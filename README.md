@@ -43,7 +43,7 @@ Implemented:
 - single-host real-shard hidden-state and one-token output parity gates
 - disabled-by-default HTTP shard execution bridge with request IDs, context cancellation, timeouts, strict JSON request parsing, and httptest coverage
 - registry-backed and CLI route-preview helpers plus explicit remote-worker maps for tests/orchestration
-- Bun/TypeScript web UI built with bundled Preact and D3 for peers, placement, routes, and model-helper commands
+- Bun/TypeScript web UI built with bundled Preact and D3 for peers, placement, routes, execution-boundary status, and model-helper commands
 
 Deferred:
 

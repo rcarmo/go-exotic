@@ -1,29 +1,8 @@
 import { render } from "preact";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import * as d3 from "d3";
+import { BoundaryStatus, CapabilityResponse, getJSON, LoadState, PlacementPreview, probeShardExecution, RoutePreview } from "./api";
 import "./style.css";
-
-type Capability = {
-  peer_id: string;
-  device: { id: string; memory_gb: number; backend?: string };
-  metadata?: Record<string, string>;
-};
-
-type CapabilityResponse = { capabilities: Capability[] };
-type Shard = { device_id: string; start_layer: number; end_layer: number };
-type PlacementPreview = { model_id: string; layers: number; shards: Shard[] };
-type RouteEntry = { peer_id: string; address: string; transport: string; shard: Shard };
-type RoutePreview = { model_id: string; layers: number; routes: RouteEntry[] };
-
-type LoadState<T> = { loading: boolean; data?: T; error?: string };
-
-async function getJSON<T>(path: string): Promise<T> {
-  const res = await fetch(path, { headers: { accept: "application/json" } });
-  const text = await res.text();
-  const parsed = text ? JSON.parse(text) : undefined;
-  if (!res.ok) throw new Error(parsed?.error || `${res.status} ${res.statusText}`);
-  return parsed as T;
-}
 
 function useJSON<T>(path: string, deps: unknown[] = []): LoadState<T> & { refresh: () => void } {
   const [tick, setTick] = useState(0);
@@ -45,6 +24,7 @@ function App() {
   const [model, setModel] = useState("demo");
   const [modelPath, setModelPath] = useState("../go-pherence/models/demo");
   const caps = useJSON<CapabilityResponse>("/capabilities");
+  const boundary = useBoundaryStatus();
   const placement = useJSON<PlacementPreview>(`/placement/preview?layers=${layers}&model=${encodeURIComponent(model)}`, [layers, model]);
   const routes = useJSON<RoutePreview>(`/routes/preview?layers=${layers}&model=${encodeURIComponent(model)}`, [layers, model]);
 
@@ -66,6 +46,7 @@ function App() {
 
     <section class="grid">
       <PeersCard state={caps} />
+      <BoundaryCard state={boundary} />
       <ModelHelpers model={model} modelPath={modelPath} />
     </section>
 
@@ -74,6 +55,21 @@ function App() {
       <PreviewCard title="Routes" state={routes} kind="routes" />
     </section>
   </main>;
+}
+
+function useBoundaryStatus(): LoadState<BoundaryStatus> & { refresh: () => void } {
+  const [tick, setTick] = useState(0);
+  const [state, setState] = useState<LoadState<BoundaryStatus>>({ loading: true });
+  useEffect(() => {
+    let cancelled = false;
+    setState({ loading: true, data: state.data });
+    probeShardExecution()
+      .then((data) => !cancelled && setState({ loading: false, data }))
+      .catch((err: Error) => !cancelled && setState({ loading: false, error: err.message }));
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tick]);
+  return { ...state, refresh: () => setTick((v) => v + 1) };
 }
 
 function PeersCard({ state }: { state: LoadState<CapabilityResponse> }) {
@@ -87,6 +83,20 @@ function PeersCard({ state }: { state: LoadState<CapabilityResponse> }) {
       <span>{cap.device.memory_gb.toFixed(2)} GB</span>
       <small>{cap.metadata?.address || "no advertised address"}</small>
     </div>)}
+  </section>;
+}
+
+function BoundaryCard({ state }: { state: LoadState<BoundaryStatus> }) {
+  const status = state.data?.status || "error";
+  return <section class={`card boundary ${status}`}>
+    <h2>Execution boundary</h2>
+    {state.loading && <p>Checking shard endpoint…</p>}
+    {state.error && <p class="error">{state.error}</p>}
+    {state.data && <>
+      <p><strong>{status === "disabled" ? "Shard execution disabled" : status === "available" ? "Shard endpoint wired" : "Shard endpoint error"}</strong></p>
+      <p>{state.data.detail}</p>
+      <small>Route/placement previews are safe metadata calls. `/shards/execute` only runs when the server is explicitly started with shard-worker wiring.</small>
+    </>}
   </section>;
 }
 

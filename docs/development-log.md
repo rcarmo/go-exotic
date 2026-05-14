@@ -348,3 +348,10 @@
 - Added `bun run typecheck:web` and wired TypeScript typechecking into `make check`.
 - Added D3 type declarations to keep the dashboard fully typechecked.
 - Improved the model-helper panel with a separate model path control and copyable commands for fixture setup, smoke generation, route planning, and explicit shard-server opt-in.
+
+
+## Session 57: Web UI execution boundary card
+
+- Split dashboard API types/fetch helpers into `web/src/api.ts`.
+- Added a non-executing `/shards/execute` status probe that distinguishes the default disabled state from explicit shard-worker wiring.
+- Added an execution-boundary card to make clear that route and placement previews are metadata-only.

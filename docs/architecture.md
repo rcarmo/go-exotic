@@ -108,3 +108,7 @@ The integration suite now has a documented SmolLM2 fixture skip path: set `GO_EX
 ## One-token output parity
 
 `TestRealShardOneTokenOutputMatchesSequentialForwardLayer` verifies that routed multi-shard execution and direct sequential `ForwardLayer` execution produce the same final hidden state and greedy next token after `FinishCPUDecodeStep`. This closes the local Phase 8 output parity gate without enabling remote HTTP shard execution.
+
+## HTTP shard execution surface
+
+`/shards/execute` now exists as a disabled-by-default HTTP bridge. The default CLI server does not install a shard worker, so remote execution returns `503 shard execution disabled`. Tests can enable it with `server.WithShardExecution(worker, totalLayers)`. The wire format uses `protocol.ShardExecutionHTTPBridgeRequest` and `ShardExecutionHTTPBridgeResponse`, carrying activations as `ActivationPayload` flat f32 bytes rather than JSON float arrays. LAN execution remains gated behind future timeout/request-ID/client work.

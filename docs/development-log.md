@@ -206,3 +206,9 @@
 - Used the exported `go-pherence` `FinishCPUDecodeStep` hook to complete one-token output parity for the local real-shard path.
 - Upgraded the real-shard parity test to compare the greedy token produced from routed multi-shard activation against the token produced from direct sequential `ForwardLayer` activation.
 - Kept the direct full-model adapter parity test as a separate fixture-backed gate.
+
+## Session 35: Disabled HTTP shard execution endpoint
+
+- Added the first HTTP bridge DTOs for shard execution using `ActivationPayload` instead of JSON float arrays.
+- Added `/shards/execute` behind an explicit `WithShardExecution` server option; default `serve` keeps shard execution disabled and returns 503.
+- Added httptest coverage for disabled-by-default behavior, successful in-process execution, malformed JSON rejection, and HTTP payload round-trips.

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -11,17 +12,38 @@ import (
 	"github.com/rcarmo/go-exotic/internal/protocol"
 )
 
-type Server struct {
-	capabilities []protocol.Capability
+type ShardWorker interface {
+	ExecuteShard(context.Context, protocol.ShardExecutionRequest) (protocol.ShardExecutionResponse, error)
 }
 
-func New(capabilities []protocol.Capability) *Server {
+type Server struct {
+	capabilities []protocol.Capability
+	shardWorker  ShardWorker
+	totalLayers  int
+}
+
+type Option func(*Server)
+
+func WithShardExecution(worker ShardWorker, totalLayers int) Option {
+	return func(s *Server) {
+		s.shardWorker = worker
+		s.totalLayers = totalLayers
+	}
+}
+
+func New(capabilities []protocol.Capability, opts ...Option) *Server {
 	caps := make([]protocol.Capability, 0, len(capabilities))
 	for _, cap := range capabilities {
 		cap.Metadata = cloneMetadata(cap.Metadata)
 		caps = append(caps, cap)
 	}
-	return &Server{capabilities: caps}
+	s := &Server{capabilities: caps}
+	for _, opt := range opts {
+		if opt != nil {
+			opt(s)
+		}
+	}
+	return s
 }
 
 func (s *Server) Handler() http.Handler {
@@ -29,6 +51,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("/health", s.handleHealth)
 	mux.HandleFunc("/capabilities", s.handleCapabilities)
 	mux.HandleFunc("/placement/preview", s.handlePlacementPreview)
+	mux.HandleFunc("/shards/execute", s.handleShardExecute)
 	return mux
 }
 
@@ -69,6 +92,49 @@ func (s *Server) handlePlacementPreview(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	writeJSON(w, http.StatusOK, protocol.PlacementPreview{ModelID: r.URL.Query().Get("model"), Layers: layers, Shards: plan.Shards})
+}
+
+func (s *Server) handleShardExecute(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	if s.shardWorker == nil || s.totalLayers <= 0 {
+		writeError(w, http.StatusServiceUnavailable, "shard execution disabled")
+		return
+	}
+	defer r.Body.Close()
+	var wire protocol.ShardExecutionHTTPBridgeRequest
+	dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, 64<<20))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&wire); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	req, err := wire.ShardExecutionRequest()
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := req.Validate(s.totalLayers); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	resp, err := s.shardWorker.ExecuteShard(r.Context(), req)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if err := resp.Validate(); err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	out, err := protocol.NewShardExecutionHTTPBridgeResponse(resp)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, out)
 }
 
 func (s *Server) capabilitiesCopy() []protocol.Capability {

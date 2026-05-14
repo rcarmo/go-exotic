@@ -125,8 +125,8 @@ func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
 		dir = "web"
 	}
 	file := filepath.Join(dir, "static", filepath.FromSlash(asset))
-	info, err := os.Stat(file)
-	if err != nil || info.IsDir() {
+	info, err := os.Lstat(file)
+	if err != nil || info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
 		http.NotFound(w, r)
 		return
 	}

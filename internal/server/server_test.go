@@ -48,8 +48,14 @@ func TestServerStaticServesConcreteFilesOnly(t *testing.T) {
 	if err := os.Mkdir(filepath.Join(staticDir, "nested"), 0o755); err != nil {
 		t.Fatal(err)
 	}
+	if err := os.WriteFile(filepath.Join(webDir, "secret.txt"), []byte("secret"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(filepath.Join(webDir, "secret.txt"), filepath.Join(staticDir, "secret-link.txt")); err != nil {
+		t.Skipf("symlink unavailable: %v", err)
+	}
 	s := New(nil, WithWebDir(webDir))
-	for _, path := range []string{"/static/", "/static", "/static/nested", "/static/nested/", "/static/%2e%2e/index.html"} {
+	for _, path := range []string{"/static/", "/static", "/static/nested", "/static/nested/", "/static/%2e%2e/index.html", "/static/secret-link.txt"} {
 		rr := httptest.NewRecorder()
 		s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, path, nil))
 		if rr.Code != http.StatusNotFound {

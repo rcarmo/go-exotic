@@ -534,3 +534,9 @@
 - Audited static asset serving after directory listing was blocked and removed the remaining reliance on `http.FileServer` path handling.
 - Static responses now clean/reject suspicious asset paths, stat targets, reject directories, and serve concrete files only.
 - Expanded static tests to cover directories, encoded traversal attempts, and successful concrete asset serving.
+
+## Session 89: Static symlink audit
+
+- Audited explicit static asset serving for remaining filesystem edge cases.
+- Replaced symlink-following `os.Stat` with `os.Lstat` and reject symlinked static assets before serving.
+- Added coverage proving symlinked files under `web/static` are not served.

@@ -113,7 +113,7 @@ func TestServerModelHelpers(t *testing.T) {
 }
 
 func TestServerUIStatus(t *testing.T) {
-	s := New(nil)
+	s := New(nil, WithWebDir("../../web"))
 	rr := httptest.NewRecorder()
 	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/ui/status", nil))
 	if rr.Code != http.StatusOK {
@@ -123,7 +123,7 @@ func TestServerUIStatus(t *testing.T) {
 	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
 		t.Fatalf("decode: %v", err)
 	}
-	if got.Name != "go-exotic" || got.APIVersion == "" || !got.WebUI || got.StartedAt == "" || got.UptimeSeconds < 0 || len(got.Endpoints) == 0 || got.Boundary == "" {
+	if got.Name != "go-exotic" || got.APIVersion == "" || !got.WebUI || got.StartedAt == "" || got.UptimeSeconds < 0 || got.WebBundle == "" || len(got.Endpoints) == 0 || got.Boundary == "" {
 		t.Fatalf("unexpected ui status: %+v", got)
 	}
 }

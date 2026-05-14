@@ -76,7 +76,7 @@ function StatusCard({ state }: { state: LoadState<UIStatusResponse> }) {
     {state.data && <>
       <p><strong>{state.data.name}</strong> <span>{state.data.api_version}</span></p>
       <p>{state.data.boundary}</p>
-      <small>started {state.data.started_at} · uptime {formatDuration(state.data.uptime_seconds)} · {state.data.endpoints.length} API endpoints advertised</small>
+      <small>started {state.data.started_at} · uptime {formatDuration(state.data.uptime_seconds)} · bundle {state.data.web_bundle || "unknown"} · {state.data.endpoints.length} API endpoints advertised</small>
     </>}
   </section>;
 }

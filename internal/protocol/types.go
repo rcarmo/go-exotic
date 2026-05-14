@@ -79,6 +79,7 @@ type UIStatusResponse struct {
 	WebUI         bool     `json:"web_ui"`
 	StartedAt     string   `json:"started_at"`
 	UptimeSeconds int64    `json:"uptime_seconds"`
+	WebBundle     string   `json:"web_bundle,omitempty"`
 	Endpoints     []string `json:"endpoints"`
 	Boundary      string   `json:"boundary"`
 }

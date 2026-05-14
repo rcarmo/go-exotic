@@ -425,3 +425,9 @@
 - Removed brittle frontend label-by-position coupling for model helper commands.
 - Added `protocol.ModelCommand` so `/models/helpers` returns each command with its label.
 - Updated the dashboard to render backend-provided labels directly.
+
+## Session 70: Web bundle status hash
+
+- Extended `/ui/status` with a short SHA-256 identifier for the served `web/static/app.js` bundle.
+- Updated the dashboard server card to display the bundle identifier for debugging stale browser assets.
+- Added server coverage for the bundle field when the web directory is configured.

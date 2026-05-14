@@ -2,6 +2,8 @@ package server
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -137,6 +139,7 @@ func (s *Server) handleUIStatus(w http.ResponseWriter, r *http.Request) {
 		WebUI:         true,
 		StartedAt:     s.startedAt.Format(time.RFC3339),
 		UptimeSeconds: int64(now.Sub(s.startedAt).Seconds()),
+		WebBundle:     s.webBundleID(),
 		Endpoints: []string{
 			"GET /health",
 			"GET /capabilities",
@@ -148,6 +151,19 @@ func (s *Server) handleUIStatus(w http.ResponseWriter, r *http.Request) {
 		},
 		Boundary: boundary,
 	})
+}
+
+func (s *Server) webBundleID() string {
+	dir := s.webDir
+	if dir == "" {
+		dir = "web"
+	}
+	data, err := os.ReadFile(filepath.Join(dir, "static", "app.js"))
+	if err != nil {
+		return ""
+	}
+	sum := sha256.Sum256(data)
+	return hex.EncodeToString(sum[:])[:12]
 }
 
 func (s *Server) handleCapabilities(w http.ResponseWriter, r *http.Request) {

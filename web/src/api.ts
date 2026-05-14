@@ -1,4 +1,4 @@
-export type UIStatusResponse = { name: string; api_version: string; web_ui: boolean; started_at: string; uptime_seconds: number; endpoints: string[]; boundary: string };
+export type UIStatusResponse = { name: string; api_version: string; web_ui: boolean; started_at: string; uptime_seconds: number; web_bundle?: string; endpoints: string[]; boundary: string };
 
 export type Capability = {
   peer_id: string;

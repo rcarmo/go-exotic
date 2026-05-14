@@ -480,3 +480,8 @@
 
 - Added a typed `APIError` for dashboard JSON fetches that includes HTTP status and status text.
 - Hardened JSON parsing so non-JSON error bodies still surface useful text instead of a parse exception.
+
+## Session 80: Shared dashboard response parsing
+
+- Reused the dashboard API client's tolerant JSON parsing in the shard execution status probe.
+- This keeps `/shards/execute` boundary diagnostics consistent with the rest of the UI when responses are JSON, text, or empty.

@@ -52,13 +52,8 @@ export async function getJSON<T>(path: string): Promise<T> {
 export async function probeShardExecution(): Promise<BoundaryStatus> {
   const res = await fetch("/shards/execute", { method: "POST", headers: { "content-type": "application/json", accept: "application/json" }, body: "{}" });
   const text = await res.text();
-  let detail = `${res.status} ${res.statusText}`;
-  try {
-    const parsed = text ? JSON.parse(text) : undefined;
-    if (parsed?.error) detail = parsed.error;
-  } catch {
-    if (text) detail = text;
-  }
+  const parsed = parseJSON(text) as { error?: string } | undefined;
+  const detail = parsed?.error || text || `${res.status} ${res.statusText}`;
   if (res.status === 503) return { status: "disabled", detail };
   if (res.status === 400) return { status: "available", detail: "Shard endpoint is wired and validating requests" };
   if (res.ok) return { status: "available", detail };

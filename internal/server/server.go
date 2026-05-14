@@ -79,6 +79,7 @@ func New(capabilities []protocol.Capability, opts ...Option) *Server {
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", s.handleWeb)
+	mux.HandleFunc("/static", s.handleStatic)
 	mux.HandleFunc("/static/", s.handleStatic)
 	mux.HandleFunc("/health", s.handleHealth)
 	mux.HandleFunc("/ui/status", s.handleUIStatus)
@@ -111,6 +112,11 @@ func (s *Server) handleWeb(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet && r.Method != http.MethodHead {
 		writeMethodNotAllowed(w, http.MethodGet, http.MethodHead)
+		return
+	}
+	asset := strings.TrimPrefix(r.URL.Path, "/static/")
+	if asset == "" || strings.HasSuffix(asset, "/") {
+		http.NotFound(w, r)
 		return
 	}
 	setWebCacheHeaders(w)

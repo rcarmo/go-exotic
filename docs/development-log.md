@@ -522,3 +522,9 @@
 - Audited HTTP method handling across dashboard and shard endpoints.
 - Found that `405 Method Not Allowed` responses did not include the standard `Allow` header.
 - Centralized method-not-allowed responses and added coverage for representative UI/API endpoints.
+
+## Session 87: Static asset serving audit
+
+- Audited static asset serving and found that the default `http.FileServer` path could expose directory listings for `/static/`.
+- Registered `/static` explicitly and rejected empty/directory-style static paths while preserving concrete asset serving.
+- Added coverage for blocked static directory requests.

@@ -36,6 +36,17 @@ func TestServerServesWebUI(t *testing.T) {
 	}
 }
 
+func TestServerStaticDoesNotListDirectories(t *testing.T) {
+	s := New(nil, WithWebDir("../../web"))
+	for _, path := range []string{"/static/", "/static"} {
+		rr := httptest.NewRecorder()
+		s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, path, nil))
+		if rr.Code != http.StatusNotFound {
+			t.Fatalf("%s status=%d body=%s", path, rr.Code, rr.Body.String())
+		}
+	}
+}
+
 func TestServerMethodNotAllowedIncludesAllowHeader(t *testing.T) {
 	s := New(nil, WithWebDir("../../web"))
 	cases := []struct {

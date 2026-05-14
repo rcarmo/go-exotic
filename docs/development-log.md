@@ -396,3 +396,8 @@
 
 - Audited the dashboard refresh path after adding boundary, helper, and local model inventory calls.
 - Fixed the global Refresh button so it refreshes peers, execution boundary, model helpers, local inventory, placement, and routes together.
+
+## Session 65: Deterministic model inventory ordering
+
+- Audited `/models/local` response ordering and made it deterministic by sorting model fixtures by ID.
+- Strengthened server coverage so complete/incomplete fixtures with reversed lexical names verify ordering independently from completeness.

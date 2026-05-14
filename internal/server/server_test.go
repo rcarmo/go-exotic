@@ -30,7 +30,7 @@ func TestServerServesWebUI(t *testing.T) {
 
 func TestServerLocalModels(t *testing.T) {
 	root := t.TempDir()
-	complete := filepath.Join(root, "complete")
+	complete := filepath.Join(root, "z-complete")
 	if err := os.Mkdir(complete, 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -39,7 +39,7 @@ func TestServerLocalModels(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	incomplete := filepath.Join(root, "incomplete")
+	incomplete := filepath.Join(root, "a-incomplete")
 	if err := os.Mkdir(incomplete, 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -56,7 +56,7 @@ func TestServerLocalModels(t *testing.T) {
 	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
 		t.Fatalf("decode: %v", err)
 	}
-	if got.Root != root || len(got.Models) != 2 || !got.Models[0].Complete || got.Models[1].Complete {
+	if got.Root != root || len(got.Models) != 2 || got.Models[0].ID != "a-incomplete" || got.Models[1].ID != "z-complete" || got.Models[0].Complete || !got.Models[1].Complete {
 		t.Fatalf("unexpected local models: %+v", got)
 	}
 }

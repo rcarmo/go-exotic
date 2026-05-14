@@ -153,6 +153,7 @@ func (s *Server) handleLocalModels(w http.ResponseWriter, r *http.Request) {
 		}
 		models = append(models, protocol.LocalModel{ID: entry.Name(), Path: path, Files: files, Complete: complete})
 	}
+	sort.Slice(models, func(i, j int) bool { return models[i].ID < models[j].ID })
 	writeJSON(w, http.StatusOK, protocol.LocalModelsResponse{Root: root, Models: models})
 }
 

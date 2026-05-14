@@ -296,3 +296,9 @@
 - Added explicit validation that each route shard device ID matches the route peer ID before constructing a remote worker map.
 - Added basic shard range validation for remote worker map construction.
 - Added regression coverage for shard/peer metadata mismatches and invalid shard ranges.
+
+## Session 49: Capability address audit
+
+- Audited CLI/server route-preview capability metadata.
+- Fixed `advertiseHTTPAddress` so hostless listen addresses such as `:8089` advertise as `http://127.0.0.1:8089` instead of invalid `http://:8089`.
+- Added command-package tests for address normalization and local capability metadata.

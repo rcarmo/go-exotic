@@ -199,6 +199,9 @@ func advertiseHTTPAddress(addr string) string {
 	if strings.HasPrefix(addr, "http://") || strings.HasPrefix(addr, "https://") {
 		return strings.TrimRight(addr, "/")
 	}
+	if strings.HasPrefix(addr, ":") {
+		addr = "127.0.0.1" + addr
+	}
 	return "http://" + strings.TrimRight(addr, "/")
 }
 

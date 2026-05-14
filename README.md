@@ -69,7 +69,7 @@ curl http://127.0.0.1:8089/capabilities
 curl 'http://127.0.0.1:8089/placement/preview?layers=4&model=demo'
 ```
 
-`serve` is quiet by default. Use `-verbose` for structured JSON diagnostics.
+`serve` is quiet by default. Use `-verbose` for structured JSON diagnostics. `/shards/execute` remains disabled unless `serve` is started with the explicit local opt-in `-shard-model /path/to/go-pherence-model`.
 
 ## Architecture
 
@@ -100,3 +100,13 @@ Signed-off-by: Rui Carmo <rui.carmo@gmail.com>
 ## Current execution boundary
 
 `go-exotic` can now execute validated layer ranges in-process through `runtime.PherenceLayerExecutor`, which wraps `go-pherence/model.ForwardLayer`. `internal/sim.LayerExecutorWorker` adapts that executor to the simulator worker interface. Local real-shard hidden-state and one-token output parity are covered by fixture-backed tests. The HTTP shard endpoint and client adapter exist for tests, but the default CLI server still leaves remote execution disabled.
+
+### Explicit local shard execution opt-in
+
+The default server keeps remote shard execution disabled. For local development only, a model-backed shard worker can be installed explicitly:
+
+```bash
+go run ./cmd/go-exotic serve -addr 127.0.0.1:8089 -shard-model ../go-pherence/models/smollm2-135m
+```
+
+This wires `server.WithShardExecution` to a local `runtime.PherenceLayerExecutor` and `sim.LayerExecutorWorker`. It does not perform peer discovery, route construction, or end-to-end distributed generation.

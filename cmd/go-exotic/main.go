@@ -17,6 +17,7 @@ import (
 	"github.com/rcarmo/go-exotic/internal/protocol"
 	exoticruntime "github.com/rcarmo/go-exotic/internal/runtime"
 	"github.com/rcarmo/go-exotic/internal/server"
+	"github.com/rcarmo/go-exotic/internal/sim"
 )
 
 func main() {
@@ -91,14 +92,34 @@ func runServe(args []string) {
 	fs := flag.NewFlagSet("serve", flag.ExitOnError)
 	addr := fs.String("addr", "127.0.0.1:8089", "HTTP listen address")
 	verbose := fs.Bool("verbose", false, "enable structured diagnostic logging")
+	shardModel := fs.String("shard-model", "", "enable local shard execution with this go-pherence model directory (explicit opt-in)")
 	_ = fs.Parse(args)
 	if strings.TrimSpace(*addr) == "" {
 		fmt.Fprintln(os.Stderr, "empty listen address")
 		os.Exit(2)
 	}
 	logger := newLogger(*verbose)
-	srv := &http.Server{Addr: *addr, Handler: server.New(localCapabilities()).Handler(), ReadHeaderTimeout: 5 * time.Second}
-	logger.Info("serve_start", "addr", *addr, "distributed_generation", "disabled")
+	serverOpts := []server.Option(nil)
+	shardEnabled := strings.TrimSpace(*shardModel) != ""
+	if shardEnabled {
+		model, err := exoticruntime.LoadLocalModel(*shardModel)
+		if err != nil {
+			logger.Error("shard_model_load_error", "error", err)
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		exec, err := exoticruntime.NewPherenceLayerExecutor(model)
+		if err != nil {
+			logger.Error("shard_executor_error", "error", err)
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		worker := &sim.LayerExecutorWorker{Executor: exec, KVCacheK: make([][]float32, model.Config.NumLayers), KVCacheV: make([][]float32, model.Config.NumLayers), TotalLayers: model.Config.NumLayers}
+		serverOpts = append(serverOpts, server.WithShardExecution(worker, model.Config.NumLayers))
+		logger.Info("shard_execution_enabled", "model", *shardModel, "layers", model.Config.NumLayers)
+	}
+	srv := &http.Server{Addr: *addr, Handler: server.New(localCapabilities(), serverOpts...).Handler(), ReadHeaderTimeout: 5 * time.Second}
+	logger.Info("serve_start", "addr", *addr, "distributed_generation", "disabled", "shard_execution", shardEnabled)
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Error("serve_error", "error", err)
 		fmt.Fprintln(os.Stderr, err)

@@ -77,6 +77,10 @@ func (PherenceAdapter) Generate(ctx context.Context, modelPath, prompt string, m
 	return m.Generate(tokens, maxTokens), nil
 }
 
+func LoadLocalModel(modelPath string) (*pherencemodel.LlamaModel, error) {
+	return loadLocalModel(modelPath)
+}
+
 func loadLocalModel(modelPath string) (*pherencemodel.LlamaModel, error) {
 	modelPath, err := cleanModelPath(modelPath)
 	if err != nil {

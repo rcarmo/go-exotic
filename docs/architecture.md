@@ -127,3 +127,7 @@ Phase 9 has the first remote transport surface in place without enabling LAN dis
 - HTTP transport tests run entirely under `httptest`; no LAN assumptions are required.
 
 Remaining work is productization rather than transport scaffolding: CLI wiring, LAN peer selection, richer payload formats, and end-to-end networked generation.
+
+## Explicit serve opt-in
+
+`go-exotic serve` now accepts `-shard-model` as an explicit local-development opt-in. When omitted, `/shards/execute` remains disabled and returns `503`. When provided, the CLI loads the `go-pherence` model, builds a `PherenceLayerExecutor`, wraps it with `sim.LayerExecutorWorker`, and installs it with `server.WithShardExecution`. This is still a local shard worker surface, not LAN distributed generation.

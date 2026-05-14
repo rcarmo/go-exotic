@@ -232,3 +232,11 @@
 - Added a dedicated closeout document summarizing completed Phase 7–9 gates, safety guardrails, current execution boundary, and follow-up productization work.
 - Linked the closeout from the README.
 - Re-ran full validation with `make check`.
+
+
+## Session 39: Explicit shard serve opt-in
+
+- Added `go-exotic serve -shard-model` as an explicit local-development opt-in for installing a local shard worker.
+- The default server still leaves `/shards/execute` disabled.
+- The opt-in path loads a `go-pherence` model, constructs `PherenceLayerExecutor`, wraps it with `LayerExecutorWorker`, and passes it to `server.WithShardExecution`.
+- Smoke-checked invalid model path handling and re-ran `make check`.

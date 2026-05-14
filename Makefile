@@ -10,6 +10,7 @@ fmt:
 	gofmt -w ./cmd ./internal
 
 web:
+	bun run typecheck:web
 	bun run build:web
 
 test:

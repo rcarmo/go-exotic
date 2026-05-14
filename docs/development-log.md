@@ -341,3 +341,10 @@
 - Bundled the UI into `web/static/app.js` and `app.css`, served by the Go HTTP server at `/` and `/static/`.
 - The dashboard displays peers, placement preview, route preview, and model setup helper commands.
 - Added server tests for serving the UI and wired `make check` to rebuild the web bundle.
+
+
+## Session 56: Web UI hardening
+
+- Added `bun run typecheck:web` and wired TypeScript typechecking into `make check`.
+- Added D3 type declarations to keep the dashboard fully typechecked.
+- Improved the model-helper panel with a separate model path control and copyable commands for fixture setup, smoke generation, route planning, and explicit shard-server opt-in.

@@ -43,6 +43,7 @@ function useJSON<T>(path: string, deps: unknown[] = []): LoadState<T> & { refres
 function App() {
   const [layers, setLayers] = useState(4);
   const [model, setModel] = useState("demo");
+  const [modelPath, setModelPath] = useState("../go-pherence/models/demo");
   const caps = useJSON<CapabilityResponse>("/capabilities");
   const placement = useJSON<PlacementPreview>(`/placement/preview?layers=${layers}&model=${encodeURIComponent(model)}`, [layers, model]);
   const routes = useJSON<RoutePreview>(`/routes/preview?layers=${layers}&model=${encodeURIComponent(model)}`, [layers, model]);
@@ -59,12 +60,13 @@ function App() {
 
     <section class="controls card">
       <label>Model ID <input value={model} onInput={(e) => setModel((e.currentTarget as HTMLInputElement).value)} /></label>
+      <label>Model path <input value={modelPath} onInput={(e) => setModelPath((e.currentTarget as HTMLInputElement).value)} /></label>
       <label>Layers <input type="number" min="1" value={layers} onInput={(e) => setLayers(Math.max(1, Number((e.currentTarget as HTMLInputElement).value || 1)))} /></label>
     </section>
 
     <section class="grid">
       <PeersCard state={caps} />
-      <ModelHelpers model={model} />
+      <ModelHelpers model={model} modelPath={modelPath} />
     </section>
 
     <section class="grid wide">
@@ -88,19 +90,38 @@ function PeersCard({ state }: { state: LoadState<CapabilityResponse> }) {
   </section>;
 }
 
-function ModelHelpers({ model }: { model: string }) {
+function ModelHelpers({ model, modelPath }: { model: string; modelPath: string }) {
+  const safeModel = model.trim() || "MODEL";
+  const safePath = modelPath.trim() || `../go-pherence/models/${safeModel}`;
   const commands = [
-    `mkdir -p ../go-pherence/models/${model || "MODEL"}`,
-    `# copy or download config.json, tokenizer.json, and safetensors into that directory`,
-    `go run ./cmd/go-exotic run -model ../go-pherence/models/${model || "MODEL"} -prompt "Hello" -tokens 1`,
-    `go run ./cmd/go-exotic serve -addr 127.0.0.1:8089 -shard-model ../go-pherence/models/${model || "MODEL"}`,
+    { label: "Create fixture directory", command: `mkdir -p ${safePath}` },
+    { label: "List required files", command: `find ${safePath} -maxdepth 1 \\( -name 'config.json' -o -name 'tokenizer.json' -o -name '*.safetensors' \\) -print` },
+    { label: "Local generation smoke", command: `go run ./cmd/go-exotic run -model ${safePath} -prompt "Hello" -tokens 1` },
+    { label: "Planning preview", command: `go run ./cmd/go-exotic routes -layers 4 -model ${safeModel} -json` },
+    { label: "Explicit shard-server opt-in", command: `go run ./cmd/go-exotic serve -addr 127.0.0.1:8089 -shard-model ${safePath}` },
   ];
   return <section class="card">
     <h2>Model helpers</h2>
-    <p>Download orchestration is not automated yet. Use this checklist to stage a local go-pherence model fixture.</p>
+    <p>Download orchestration is not automated yet. Stage a local go-pherence model fixture, then run the smoke checks below.</p>
     <ol>{["config.json", "tokenizer.json", "*.safetensors"].map((item) => <li>{item}</li>)}</ol>
-    <pre>{commands.join("\n")}</pre>
+    <div class="commands">{commands.map((item) => <CommandRow key={item.label} label={item.label} command={item.command} />)}</div>
   </section>;
+}
+
+function CommandRow({ label, command }: { label: string; command: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    await navigator.clipboard?.writeText(command);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1200);
+  };
+  return <div class="command-row">
+    <div>
+      <strong>{label}</strong>
+      <code>{command}</code>
+    </div>
+    <button type="button" onClick={copy}>{copied ? "Copied" : "Copy"}</button>
+  </div>;
 }
 
 function PreviewCard<T extends PlacementPreview | RoutePreview>({ title, state, kind }: { title: string; state: LoadState<T>; kind: "placement" | "routes" }) {

@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "typecheck:web": "tsc --noEmit",
     "build:web": "bun build web/src/app.tsx --target=browser --outdir=web/static --entry-naming='[dir]/app.[ext]' --asset-naming='[dir]/[name].[ext]' --minify"
   },
   "dependencies": {
@@ -8,6 +9,7 @@
     "preact": "^10.26.9"
   },
   "devDependencies": {
+    "@types/d3": "^7.4.3",
     "typescript": "^5.8.3"
   }
 }

@@ -123,11 +123,12 @@ This wires `server.WithShardExecution` to a local `runtime.PherenceLayerExecutor
 
 ### Web UI development
 
-The dashboard is written in TypeScript under `web/src` and built with Bun:
+The dashboard is written in TypeScript under `web/src`, typechecked with `tsc`, and built with Bun:
 
 ```bash
 bun install
+bun run typecheck:web
 bun run build:web
 ```
 
-The generated `web/static/app.js` bundle includes Preact and D3 from the Bun dependency graph, so the running Go server has no browser-time package-manager dependency. `make check` rebuilds the UI.
+The generated `web/static/app.js` bundle includes Preact and D3 from the Bun dependency graph, so the running Go server has no browser-time package-manager dependency. `make check` typechecks and rebuilds the UI.

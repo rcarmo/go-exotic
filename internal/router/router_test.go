@@ -7,6 +7,7 @@ import (
 
 	"github.com/rcarmo/go-exotic/internal/cluster"
 	"github.com/rcarmo/go-exotic/internal/exotic"
+	"github.com/rcarmo/go-exotic/internal/protocol"
 )
 
 func TestBuildRoutes(t *testing.T) {
@@ -19,6 +20,52 @@ func TestBuildRoutes(t *testing.T) {
 	}
 	if len(routes) != 2 || routes[0].Peer.ID != "a" || routes[1].Peer.ID != "b" {
 		t.Fatalf("unexpected routes: %+v", routes)
+	}
+}
+
+func TestBuildRoutesFromCapabilities(t *testing.T) {
+	peerA, _ := cluster.LocalPeer("a", "http://127.0.0.1:1", 1)
+	peerB, _ := cluster.LocalPeer("b", "http://127.0.0.1:2", 2)
+	capA, _ := peerA.Capability()
+	capB, _ := peerB.Capability()
+	routes, err := BuildRoutesFromCapabilities(context.Background(), []protocol.Capability{capB, capA}, []exotic.Shard{{DeviceID: "a", StartLayer: 0, EndLayer: 0}, {DeviceID: "b", StartLayer: 1, EndLayer: 2}}, 3)
+	if err != nil {
+		t.Fatalf("BuildRoutesFromCapabilities: %v", err)
+	}
+	if len(routes) != 2 || routes[0].Peer.Address != "http://127.0.0.1:1" || routes[1].Peer.Address != "http://127.0.0.1:2" {
+		t.Fatalf("unexpected routes: %+v", routes)
+	}
+}
+
+func TestBuildRoutesFromCapabilitiesRejectsMalformedInputs(t *testing.T) {
+	peer, _ := cluster.LocalPeer("a", "http://127.0.0.1:1", 1)
+	capA, _ := peer.Capability()
+	duplicate := capA
+	badAddress := capA
+	badAddress.Metadata = map[string]string{"address": "not-a-url", "transport": cluster.TransportHTTP}
+	badTransport := capA
+	badTransport.PeerID = "b"
+	badTransport.Device.ID = "b"
+	badTransport.Metadata = map[string]string{"address": "http://127.0.0.1:2", "transport": "udp"}
+	missing := capA
+	missing.PeerID = "missing"
+	missing.Device.ID = "missing"
+	missing.Metadata = map[string]string{"address": "http://127.0.0.1:3"}
+	cases := []struct {
+		name string
+		caps []protocol.Capability
+	}{
+		{"duplicate capability", []protocol.Capability{capA, duplicate}},
+		{"bad address", []protocol.Capability{badAddress}},
+		{"bad transport", []protocol.Capability{badTransport}},
+		{"missing shard peer", []protocol.Capability{missing}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if _, err := BuildRoutesFromCapabilities(context.Background(), tc.caps, []exotic.Shard{{DeviceID: "a", StartLayer: 0, EndLayer: 0}}, 1); err == nil {
+				t.Fatal("accepted malformed capabilities")
+			}
+		})
 	}
 }
 

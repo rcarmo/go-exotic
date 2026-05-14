@@ -246,3 +246,9 @@
 
 - Re-ran `make check` after the explicit shard serve opt-in work.
 - Updated the real-shard closeout document so follow-up work distinguishes completed local CLI opt-in from still-pending LAN peer selection and routed generation.
+
+## Session 41: Capability-based route planning
+
+- Added `router.BuildRoutesFromCapabilities` to convert wire-facing peer capabilities into validated shard routes.
+- The helper preserves the planning-only boundary: it constructs route metadata but does not enable networked generation.
+- Added tests for deterministic multi-peer capability routing and malformed capability rejection.

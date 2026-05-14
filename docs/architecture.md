@@ -131,3 +131,8 @@ Remaining work is productization rather than transport scaffolding: CLI wiring, 
 ## Explicit serve opt-in
 
 `go-exotic serve` now accepts `-shard-model` as an explicit local-development opt-in. When omitted, `/shards/execute` remains disabled and returns `503`. When provided, the CLI loads the `go-pherence` model, builds a `PherenceLayerExecutor`, wraps it with `sim.LayerExecutorWorker`, and installs it with `server.WithShardExecution`. This is still a local shard worker surface, not LAN distributed generation.
+
+
+## Capability-based route planning
+
+`router.BuildRoutesFromCapabilities` turns live `protocol.Capability` advertisements into validated `router.Route` values by reconstructing cluster peers from capability metadata (`address`, `transport`) and applying the existing route validation. This is planning-only and does not execute remote generation.

@@ -68,6 +68,14 @@ type HealthResponse struct {
 	Status string `json:"status"`
 }
 
+type UIStatusResponse struct {
+	Name       string   `json:"name"`
+	APIVersion string   `json:"api_version"`
+	WebUI      bool     `json:"web_ui"`
+	Endpoints  []string `json:"endpoints"`
+	Boundary   string   `json:"boundary"`
+}
+
 type CapabilitiesResponse struct {
 	Capabilities []Capability `json:"capabilities"`
 }

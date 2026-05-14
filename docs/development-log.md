@@ -401,3 +401,9 @@
 
 - Audited `/models/local` response ordering and made it deterministic by sorting model fixtures by ID.
 - Strengthened server coverage so complete/incomplete fixtures with reversed lexical names verify ordering independently from completeness.
+
+## Session 66: UI status endpoint
+
+- Added `GET /ui/status` to expose a compact read-only server/UI status payload with API version, advertised endpoints, and execution boundary text.
+- Added a dashboard server status card and wired it into global refresh.
+- Added server test coverage for the status payload.

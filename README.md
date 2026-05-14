@@ -29,6 +29,7 @@ Implemented:
   - `serve` — local HTTP API skeleton
 - HTTP endpoints:
   - `GET /health`
+  - `GET /ui/status`
   - `GET /capabilities`
   - `GET /placement/preview?layers=N&model=...`
   - `GET /models/helpers?model=...&path=...` — manual model fixture helper commands, read-only required-file status, and model path presets

@@ -1,3 +1,5 @@
+export type UIStatusResponse = { name: string; api_version: string; web_ui: boolean; endpoints: string[]; boundary: string };
+
 export type Capability = {
   peer_id: string;
   device: { id: string; memory_gb: number; backend?: string };

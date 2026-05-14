@@ -183,3 +183,8 @@ The server serves a small dashboard at `/` plus bundled static assets under `/st
 ## Local model inventory API
 
 `GET /models/local?root=...` scans local model subdirectories and returns read-only required-file status for each fixture. It is used by the dashboard to offer quick fixture selection, and it does not download or modify files.
+
+
+## UI status endpoint
+
+`GET /ui/status` returns a compact read-only status payload for the dashboard, including API version, advertised endpoints, and the current execution boundary. It does not probe peers or execute shards.

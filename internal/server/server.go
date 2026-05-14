@@ -71,6 +71,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("/", s.handleWeb)
 	mux.HandleFunc("/static/", s.handleStatic)
 	mux.HandleFunc("/health", s.handleHealth)
+	mux.HandleFunc("/ui/status", s.handleUIStatus)
 	mux.HandleFunc("/capabilities", s.handleCapabilities)
 	mux.HandleFunc("/models/local", s.handleLocalModels)
 	mux.HandleFunc("/models/helpers", s.handleModelHelpers)
@@ -115,6 +116,32 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, protocol.HealthResponse{Status: "ok"})
+}
+
+func (s *Server) handleUIStatus(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	boundary := "shard execution disabled"
+	if s.shardWorker != nil && s.totalLayers > 0 {
+		boundary = "local shard execution explicitly wired"
+	}
+	writeJSON(w, http.StatusOK, protocol.UIStatusResponse{
+		Name:       "go-exotic",
+		APIVersion: "v1alpha",
+		WebUI:      true,
+		Endpoints: []string{
+			"GET /health",
+			"GET /capabilities",
+			"GET /models/local",
+			"GET /models/helpers",
+			"GET /placement/preview",
+			"GET /routes/preview",
+			"POST /shards/execute (gated)",
+		},
+		Boundary: boundary,
+	})
 }
 
 func (s *Server) handleCapabilities(w http.ResponseWriter, r *http.Request) {

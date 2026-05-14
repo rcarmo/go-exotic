@@ -87,6 +87,22 @@ func TestServerModelHelpers(t *testing.T) {
 	}
 }
 
+func TestServerUIStatus(t *testing.T) {
+	s := New(nil)
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/ui/status", nil))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", rr.Code, rr.Body.String())
+	}
+	var got protocol.UIStatusResponse
+	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if got.Name != "go-exotic" || got.APIVersion == "" || !got.WebUI || len(got.Endpoints) == 0 || got.Boundary == "" {
+		t.Fatalf("unexpected ui status: %+v", got)
+	}
+}
+
 func TestServerHealthCapabilitiesAndPlacement(t *testing.T) {
 	s := New([]protocol.Capability{{PeerID: "local", Device: exotic.Device{ID: "local", MemoryGB: 1, Backend: "go-pherence"}}})
 	h := s.Handler()

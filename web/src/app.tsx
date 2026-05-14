@@ -1,7 +1,7 @@
 import { render } from "preact";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import * as d3 from "d3";
-import { BoundaryStatus, CapabilityResponse, getJSON, LoadState, LocalModelsResponse, ModelHelperResponse, PlacementPreview, probeShardExecution, RoutePreview } from "./api";
+import { BoundaryStatus, CapabilityResponse, getJSON, LoadState, LocalModelsResponse, ModelHelperResponse, PlacementPreview, probeShardExecution, RoutePreview, UIStatusResponse } from "./api";
 import { loadNumber, loadString, saveValue } from "./storage";
 import "./style.css";
 
@@ -29,6 +29,7 @@ function App() {
   const setModel = (value: string) => { setModelState(value); saveValue("go-exotic.model", value); };
   const setModelPath = (value: string) => { setModelPathState(value); saveValue("go-exotic.modelPath", value); };
   const setModelRoot = (value: string) => { setModelRootState(value); saveValue("go-exotic.modelRoot", value); };
+  const uiStatus = useJSON<UIStatusResponse>("/ui/status");
   const caps = useJSON<CapabilityResponse>("/capabilities");
   const boundary = useBoundaryStatus();
   const localModels = useJSON<LocalModelsResponse>(`/models/local?root=${encodeURIComponent(modelRoot)}`, [modelRoot]);
@@ -43,7 +44,7 @@ function App() {
         <h1>Distributed inference planner</h1>
         <p>Peer capabilities, placement previews, route previews, and model setup helpers. Shard execution remains opt-in.</p>
       </div>
-      <button onClick={() => { caps.refresh(); boundary.refresh(); localModels.refresh(); helpers.refresh(); placement.refresh(); routes.refresh(); }}>Refresh</button>
+      <button onClick={() => { uiStatus.refresh(); caps.refresh(); boundary.refresh(); localModels.refresh(); helpers.refresh(); placement.refresh(); routes.refresh(); }}>Refresh</button>
     </header>
 
     <section class="controls card">
@@ -54,6 +55,7 @@ function App() {
     </section>
 
     <section class="grid">
+      <StatusCard state={uiStatus} />
       <PeersCard state={caps} />
       <BoundaryCard state={boundary} />
       <ModelHelpers state={helpers} localModels={localModels} modelRoot={modelRoot} onSelectPreset={(id, path) => { setModel(id); setModelPath(path); }} />
@@ -64,6 +66,19 @@ function App() {
       <PreviewCard title="Routes" state={routes} kind="routes" />
     </section>
   </main>;
+}
+
+function StatusCard({ state }: { state: LoadState<UIStatusResponse> }) {
+  return <section class="card">
+    <h2>Server</h2>
+    {state.loading && <p>Loading server status…</p>}
+    {state.error && <p class="error">{state.error}</p>}
+    {state.data && <>
+      <p><strong>{state.data.name}</strong> <span>{state.data.api_version}</span></p>
+      <p>{state.data.boundary}</p>
+      <small>{state.data.endpoints.length} API endpoints advertised</small>
+    </>}
+  </section>;
 }
 
 function useBoundaryStatus(): LoadState<BoundaryStatus> & { refresh: () => void } {

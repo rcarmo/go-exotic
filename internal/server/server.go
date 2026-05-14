@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -115,17 +116,22 @@ func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	asset := strings.TrimPrefix(r.URL.Path, "/static/")
-	if asset == "" || strings.HasSuffix(asset, "/") {
+	if asset == "" || strings.HasSuffix(asset, "/") || path.Clean("/"+asset) != "/"+asset {
 		http.NotFound(w, r)
 		return
 	}
-	setWebCacheHeaders(w)
 	dir := s.webDir
 	if dir == "" {
 		dir = "web"
 	}
-	fs := http.FileServer(http.FS(os.DirFS(filepath.Join(dir, "static"))))
-	http.StripPrefix("/static/", fs).ServeHTTP(w, r)
+	file := filepath.Join(dir, "static", filepath.FromSlash(asset))
+	info, err := os.Stat(file)
+	if err != nil || info.IsDir() {
+		http.NotFound(w, r)
+		return
+	}
+	setWebCacheHeaders(w)
+	http.ServeFile(w, r, file)
 }
 
 func setWebCacheHeaders(w http.ResponseWriter) {

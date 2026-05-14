@@ -528,3 +528,9 @@
 - Audited static asset serving and found that the default `http.FileServer` path could expose directory listings for `/static/`.
 - Registered `/static` explicitly and rejected empty/directory-style static paths while preserving concrete asset serving.
 - Added coverage for blocked static directory requests.
+
+## Session 88: Explicit static file serving audit
+
+- Audited static asset serving after directory listing was blocked and removed the remaining reliance on `http.FileServer` path handling.
+- Static responses now clean/reject suspicious asset paths, stat targets, reject directories, and serve concrete files only.
+- Expanded static tests to cover directories, encoded traversal attempts, and successful concrete asset serving.

@@ -36,14 +36,30 @@ func TestServerServesWebUI(t *testing.T) {
 	}
 }
 
-func TestServerStaticDoesNotListDirectories(t *testing.T) {
-	s := New(nil, WithWebDir("../../web"))
-	for _, path := range []string{"/static/", "/static"} {
+func TestServerStaticServesConcreteFilesOnly(t *testing.T) {
+	webDir := t.TempDir()
+	staticDir := filepath.Join(webDir, "static")
+	if err := os.Mkdir(staticDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(staticDir, "app.js"), []byte("console.log('ok')"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Mkdir(filepath.Join(staticDir, "nested"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	s := New(nil, WithWebDir(webDir))
+	for _, path := range []string{"/static/", "/static", "/static/nested", "/static/nested/", "/static/%2e%2e/index.html"} {
 		rr := httptest.NewRecorder()
 		s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, path, nil))
 		if rr.Code != http.StatusNotFound {
 			t.Fatalf("%s status=%d body=%s", path, rr.Code, rr.Body.String())
 		}
+	}
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/static/app.js", nil))
+	if rr.Code != http.StatusOK || rr.Body.String() != "console.log('ok')" {
+		t.Fatalf("asset status=%d body=%s", rr.Code, rr.Body.String())
 	}
 }
 

@@ -124,6 +124,20 @@ func TestServerLocalModels(t *testing.T) {
 	}
 }
 
+func TestServerModelFileStatusIgnoresNonRegularMatches(t *testing.T) {
+	root := t.TempDir()
+	if err := os.Mkdir(filepath.Join(root, "config.json"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Mkdir(filepath.Join(root, "weights.safetensors"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	statuses := modelFileStatuses(root, []string{"config.json", "*.safetensors"})
+	if len(statuses) != 2 || statuses[0].Present || statuses[1].Present {
+		t.Fatalf("non-regular matches should not count as model files: %+v", statuses)
+	}
+}
+
 func TestServerModelFileStatusEscapesModelPathGlobChars(t *testing.T) {
 	root := filepath.Join(t.TempDir(), "model[1]")
 	if err := os.Mkdir(root, 0o755); err != nil {

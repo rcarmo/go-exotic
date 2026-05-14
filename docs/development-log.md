@@ -551,3 +551,9 @@
 
 - Audited static asset validation for remaining filesystem node edge cases.
 - Tightened `staticAssetPath` to serve only regular files, keeping directories, symlinks, and other special nodes out of `/static/*` and bundle hashing.
+
+## Session 92: Model required-file audit
+
+- Audited read-only model file status scans for filesystem node edge cases.
+- Tightened required-file matching so directories, symlinks, and other non-regular nodes named like `config.json` or `*.safetensors` do not count as present model files.
+- Added coverage for non-regular required-file matches.

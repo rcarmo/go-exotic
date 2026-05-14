@@ -407,7 +407,7 @@ func modelFileStatuses(modelPath string, required []string) []protocol.ModelFile
 		matches := make([]string, 0)
 		for _, entry := range entries {
 			matched, err := filepath.Match(pattern, entry.Name())
-			if err == nil && matched {
+			if err == nil && matched && entryRegularFile(entry) {
 				matches = append(matches, entry.Name())
 			}
 		}
@@ -421,6 +421,14 @@ func modelFileStatuses(modelPath string, required []string) []protocol.ModelFile
 		out = append(out, protocol.ModelFileStatus{Pattern: pattern, Present: len(matches) > 0, Matches: matches, Truncated: truncated, Limit: limit})
 	}
 	return out
+}
+
+func entryRegularFile(entry os.DirEntry) bool {
+	if entry.Type()&os.ModeType != 0 {
+		return false
+	}
+	info, err := entry.Info()
+	return err == nil && info.Mode().IsRegular()
 }
 
 func positiveIntQuery(r *http.Request, name string) (int, error) {

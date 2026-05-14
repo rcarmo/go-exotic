@@ -264,6 +264,33 @@ func TestServerModelHelpers(t *testing.T) {
 	}
 }
 
+func TestServerUIStatusIgnoresSymlinkedBundle(t *testing.T) {
+	webDir := t.TempDir()
+	staticDir := filepath.Join(webDir, "static")
+	if err := os.Mkdir(staticDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(webDir, "target.js"), []byte("console.log('target')"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(filepath.Join(webDir, "target.js"), filepath.Join(staticDir, "app.js")); err != nil {
+		t.Skipf("symlink unavailable: %v", err)
+	}
+	s := New(nil, WithWebDir(webDir))
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/ui/status", nil))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", rr.Code, rr.Body.String())
+	}
+	var got protocol.UIStatusResponse
+	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if got.WebBundle != "" {
+		t.Fatalf("symlinked bundle should not be hashed: %+v", got)
+	}
+}
+
 func TestServerUIStatus(t *testing.T) {
 	s := New(nil, WithWebDir("../../web"))
 	rr := httptest.NewRecorder()

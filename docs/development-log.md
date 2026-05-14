@@ -540,3 +540,9 @@
 - Audited explicit static asset serving for remaining filesystem edge cases.
 - Replaced symlink-following `os.Stat` with `os.Lstat` and reject symlinked static assets before serving.
 - Added coverage proving symlinked files under `web/static` are not served.
+
+## Session 90: Static bundle status audit
+
+- Audited static bundle status reporting for consistency with hardened static asset serving.
+- Centralized static asset validation and reused it for `/ui/status` bundle hashing so symlinked `app.js` is not hashed if it would not be served.
+- Added coverage for symlinked bundle status behavior.

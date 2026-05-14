@@ -116,17 +116,8 @@ func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	asset := strings.TrimPrefix(r.URL.Path, "/static/")
-	if asset == "" || strings.HasSuffix(asset, "/") || path.Clean("/"+asset) != "/"+asset {
-		http.NotFound(w, r)
-		return
-	}
-	dir := s.webDir
-	if dir == "" {
-		dir = "web"
-	}
-	file := filepath.Join(dir, "static", filepath.FromSlash(asset))
-	info, err := os.Lstat(file)
-	if err != nil || info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
+	file, ok := s.staticAssetPath(asset)
+	if !ok {
 		http.NotFound(w, r)
 		return
 	}
@@ -177,16 +168,32 @@ func (s *Server) handleUIStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) webBundleID() string {
-	dir := s.webDir
-	if dir == "" {
-		dir = "web"
+	file, ok := s.staticAssetPath("app.js")
+	if !ok {
+		return ""
 	}
-	data, err := os.ReadFile(filepath.Join(dir, "static", "app.js"))
+	data, err := os.ReadFile(file)
 	if err != nil {
 		return ""
 	}
 	sum := sha256.Sum256(data)
 	return hex.EncodeToString(sum[:])[:12]
+}
+
+func (s *Server) staticAssetPath(asset string) (string, bool) {
+	if asset == "" || strings.HasSuffix(asset, "/") || path.Clean("/"+asset) != "/"+asset {
+		return "", false
+	}
+	dir := s.webDir
+	if dir == "" {
+		dir = "web"
+	}
+	file := filepath.Join(dir, "static", filepath.FromSlash(asset))
+	info, err := os.Lstat(file)
+	if err != nil || info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
+		return "", false
+	}
+	return file, true
 }
 
 func (s *Server) handleCapabilities(w http.ResponseWriter, r *http.Request) {

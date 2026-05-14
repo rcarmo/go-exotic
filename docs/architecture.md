@@ -72,3 +72,7 @@ The future `LayerShardExecutor` shape uses `protocol.ShardExecutionRequest` and 
 ## Parity status
 
 The current parity gate compares the `go-exotic` local runtime adapter against direct full-model `go-pherence` generation on the small SmolLM2 fixture when available. Synthetic shard simulation validates orchestration only; real distributed numerical parity remains pending until layer-shard execution is implemented.
+
+## Initial plan closeout
+
+The initial development plan is complete through synthetic N-shard token flow and local adapter parity against direct `go-pherence` generation. The next implementation phase is to replace synthetic workers with real layer-shard execution and then compare distributed shard output against full-model `go-pherence` output.

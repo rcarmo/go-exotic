@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/rcarmo/go-exotic/internal/cluster"
@@ -58,6 +59,23 @@ func TestServerLocalModels(t *testing.T) {
 	}
 	if got.Root != root || len(got.Models) != 2 || got.Models[0].ID != "a-incomplete" || got.Models[1].ID != "z-complete" || got.Models[0].Complete || !got.Models[1].Complete {
 		t.Fatalf("unexpected local models: %+v", got)
+	}
+}
+
+func TestServerModelHelpersQuotesCommands(t *testing.T) {
+	s := New(nil)
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/models/helpers?model=demo%20model&path=/tmp/model%20with%20space", nil))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", rr.Code, rr.Body.String())
+	}
+	var got protocol.ModelHelperResponse
+	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	joined := strings.Join(got.Commands, "\n")
+	if !strings.Contains(joined, "'/tmp/model with space'") || !strings.Contains(joined, "'demo model'") {
+		t.Fatalf("commands are not shell-quoted: %v", got.Commands)
 	}
 }
 

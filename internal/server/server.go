@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/rcarmo/go-exotic/internal/cluster"
@@ -203,6 +204,8 @@ func (s *Server) handleModelHelpers(w http.ResponseWriter, r *http.Request) {
 		modelPath = "../go-pherence/models/" + modelID
 	}
 	required := []string{"config.json", "tokenizer.json", "*.safetensors"}
+	quotedPath := shellQuote(modelPath)
+	quotedModel := shellQuote(modelID)
 	writeJSON(w, http.StatusOK, protocol.ModelHelperResponse{
 		Status:        "manual",
 		ModelPath:     modelPath,
@@ -210,11 +213,11 @@ func (s *Server) handleModelHelpers(w http.ResponseWriter, r *http.Request) {
 		RequiredFiles: required,
 		Files:         modelFileStatuses(modelPath, required),
 		Commands: []string{
-			"mkdir -p " + modelPath,
-			"find " + modelPath + " -maxdepth 1 \\( -name 'config.json' -o -name 'tokenizer.json' -o -name '*.safetensors' \\) -print",
-			"go run ./cmd/go-exotic run -model " + modelPath + " -prompt \"Hello\" -tokens 1",
-			"go run ./cmd/go-exotic routes -layers 4 -model " + modelID + " -json",
-			"go run ./cmd/go-exotic serve -addr 127.0.0.1:8089 -shard-model " + modelPath,
+			"mkdir -p " + quotedPath,
+			"find " + quotedPath + " -maxdepth 1 \\( -name 'config.json' -o -name 'tokenizer.json' -o -name '*.safetensors' \\) -print",
+			"go run ./cmd/go-exotic run -model " + quotedPath + " -prompt \"Hello\" -tokens 1",
+			"go run ./cmd/go-exotic routes -layers 4 -model " + quotedModel + " -json",
+			"go run ./cmd/go-exotic serve -addr 127.0.0.1:8089 -shard-model " + quotedPath,
 		},
 	})
 }
@@ -317,6 +320,13 @@ func (s *Server) handleShardExecute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, out)
+}
+
+func shellQuote(value string) string {
+	if value == "" {
+		return "''"
+	}
+	return "'" + strings.ReplaceAll(value, "'", "'\\''") + "'"
 }
 
 func modelPresets() []protocol.ModelPreset {

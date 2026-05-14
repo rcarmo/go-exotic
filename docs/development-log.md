@@ -413,3 +413,9 @@
 - Extended `/ui/status` with server start time and uptime seconds.
 - Updated the dashboard server card to show start time and formatted uptime.
 - Covered the new status fields in server tests.
+
+## Session 68: Model helper command quoting audit
+
+- Audited generated model helper commands for paths/model IDs with spaces or shell metacharacters.
+- Added simple POSIX shell quoting for generated commands before they are copied from the dashboard.
+- Added server coverage for quoted model IDs and model paths.

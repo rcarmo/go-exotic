@@ -38,6 +38,14 @@ func BuildRoutesFromCapabilities(ctx context.Context, caps []protocol.Capability
 	return BuildRoutes(ctx, peers, shards, totalLayers)
 }
 
+func PreviewFromRoutes(modelID string, totalLayers int, routes []Route) protocol.RoutePreview {
+	entries := make([]protocol.RouteEntry, 0, len(routes))
+	for _, route := range routes {
+		entries = append(entries, protocol.RouteEntry{PeerID: route.Peer.ID, Address: route.Peer.Address, Transport: route.Peer.Transport, Shard: route.Shard})
+	}
+	return protocol.RoutePreview{ModelID: modelID, Layers: totalLayers, Routes: entries}
+}
+
 func peerFromCapability(cap protocol.Capability) (cluster.Peer, error) {
 	address := cap.Metadata["address"]
 	transport := cap.Metadata["transport"]

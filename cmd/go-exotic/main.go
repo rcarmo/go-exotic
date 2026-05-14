@@ -98,10 +98,7 @@ func runRoutes(args []string) {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	preview := protocol.RoutePreview{ModelID: *modelID, Layers: *layers, Routes: make([]protocol.RouteEntry, 0, len(routes))}
-	for _, route := range routes {
-		preview.Routes = append(preview.Routes, protocol.RouteEntry{PeerID: route.Peer.ID, Address: route.Peer.Address, Transport: route.Peer.Transport, Shard: route.Shard})
-	}
+	preview := router.PreviewFromRoutes(*modelID, *layers, routes)
 	if *jsonOut {
 		data, err := json.MarshalIndent(preview, "", "  ")
 		if err != nil {

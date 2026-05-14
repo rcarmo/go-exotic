@@ -44,9 +44,5 @@ func PreviewFromRegistry(ctx context.Context, registry *cluster.Registry, modelI
 	if err != nil {
 		return protocol.RoutePreview{}, err
 	}
-	entries := make([]protocol.RouteEntry, 0, len(routes))
-	for _, route := range routes {
-		entries = append(entries, protocol.RouteEntry{PeerID: route.Peer.ID, Address: route.Peer.Address, Transport: route.Peer.Transport, Shard: route.Shard})
-	}
-	return protocol.RoutePreview{ModelID: modelID, Layers: totalLayers, Routes: entries}, nil
+	return PreviewFromRoutes(modelID, totalLayers, routes), nil
 }

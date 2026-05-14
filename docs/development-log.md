@@ -302,3 +302,9 @@
 - Audited CLI/server route-preview capability metadata.
 - Fixed `advertiseHTTPAddress` so hostless listen addresses such as `:8089` advertise as `http://127.0.0.1:8089` instead of invalid `http://:8089`.
 - Added command-package tests for address normalization and local capability metadata.
+
+## Session 50: Route preview conversion audit
+
+- Audited duplicated route-to-preview conversion logic across CLI, server, and registry helpers.
+- Added `router.PreviewFromRoutes` as the single conversion helper and reused it from all call sites.
+- Added focused coverage for route preview conversion.

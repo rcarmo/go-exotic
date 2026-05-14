@@ -136,11 +136,7 @@ func (s *Server) handleRoutesPreview(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	entries := make([]protocol.RouteEntry, 0, len(routes))
-	for _, route := range routes {
-		entries = append(entries, protocol.RouteEntry{PeerID: route.Peer.ID, Address: route.Peer.Address, Transport: route.Peer.Transport, Shard: route.Shard})
-	}
-	writeJSON(w, http.StatusOK, protocol.RoutePreview{ModelID: r.URL.Query().Get("model"), Layers: layers, Routes: entries})
+	writeJSON(w, http.StatusOK, router.PreviewFromRoutes(r.URL.Query().Get("model"), layers, routes))
 }
 
 func (s *Server) handleShardExecute(w http.ResponseWriter, r *http.Request) {

@@ -95,6 +95,7 @@ func (s *Server) handleWeb(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
+	setWebCacheHeaders(w)
 	dir := s.webDir
 	if dir == "" {
 		dir = "web"
@@ -107,12 +108,17 @@ func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
+	setWebCacheHeaders(w)
 	dir := s.webDir
 	if dir == "" {
 		dir = "web"
 	}
 	fs := http.FileServer(http.FS(os.DirFS(filepath.Join(dir, "static"))))
 	http.StripPrefix("/static/", fs).ServeHTTP(w, r)
+}
+
+func setWebCacheHeaders(w http.ResponseWriter) {
+	w.Header().Set("Cache-Control", "no-cache")
 }
 
 func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {

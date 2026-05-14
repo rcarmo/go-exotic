@@ -22,10 +22,16 @@ func TestServerServesWebUI(t *testing.T) {
 	if rr.Code != http.StatusOK || !bytes.Contains(rr.Body.Bytes(), []byte("go-exotic planner")) {
 		t.Fatalf("web status=%d body=%s", rr.Code, rr.Body.String())
 	}
+	if got := rr.Header().Get("Cache-Control"); got != "no-cache" {
+		t.Fatalf("index cache-control=%q", got)
+	}
 	rr = httptest.NewRecorder()
 	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/static/app.js", nil))
 	if rr.Code != http.StatusOK || rr.Body.Len() == 0 {
 		t.Fatalf("static status=%d len=%d", rr.Code, rr.Body.Len())
+	}
+	if got := rr.Header().Get("Cache-Control"); got != "no-cache" {
+		t.Fatalf("static cache-control=%q", got)
 	}
 }
 

@@ -431,3 +431,9 @@
 - Extended `/ui/status` with a short SHA-256 identifier for the served `web/static/app.js` bundle.
 - Updated the dashboard server card to display the bundle identifier for debugging stale browser assets.
 - Added server coverage for the bundle field when the web directory is configured.
+
+## Session 71: Web asset cache headers
+
+- Added explicit `Cache-Control: no-cache` headers for the dashboard HTML and static bundle responses.
+- This avoids stale browser assets while the web bundle currently uses stable filenames (`app.js`, `app.css`).
+- Added server coverage for the cache headers.

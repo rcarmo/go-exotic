@@ -373,3 +373,9 @@
 - Extended `/models/helpers` with read-only model fixture file status for `config.json`, `tokenizer.json`, and `*.safetensors`.
 - Updated the dashboard model-helper panel to show present/missing required files while keeping downloads and writes manual.
 - Added server test coverage for present and missing fixture files.
+
+## Session 61: Model helper presets
+
+- Added read-only model presets to `/models/helpers`, including the SmolLM2 parity fixture path and a demo placeholder.
+- Updated the dashboard model-helper panel with preset buttons that populate model ID and path controls.
+- Kept presets non-mutating; downloads and fixture writes remain manual.

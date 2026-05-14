@@ -11,8 +11,9 @@ export type RouteEntry = { peer_id: string; address: string; transport: string; 
 export type RoutePreview = { model_id: string; layers: number; routes: RouteEntry[] };
 export type LoadState<T> = { loading: boolean; data?: T; error?: string };
 
+export type ModelPreset = { id: string; name: string; path: string; description: string };
 export type ModelFileStatus = { pattern: string; present: boolean; matches?: string[] };
-export type ModelHelperResponse = { status: string; model_path: string; required_files: string[]; files: ModelFileStatus[]; commands: string[] };
+export type ModelHelperResponse = { status: string; model_path: string; presets: ModelPreset[]; required_files: string[]; files: ModelFileStatus[]; commands: string[] };
 
 export type BoundaryStatus = {
   status: "disabled" | "available" | "error";

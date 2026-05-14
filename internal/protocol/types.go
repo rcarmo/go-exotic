@@ -30,6 +30,13 @@ type RouteEntry struct {
 	Shard     exotic.Shard `json:"shard"`
 }
 
+type ModelPreset struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Path        string `json:"path"`
+	Description string `json:"description"`
+}
+
 type ModelFileStatus struct {
 	Pattern string   `json:"pattern"`
 	Present bool     `json:"present"`
@@ -39,6 +46,7 @@ type ModelFileStatus struct {
 type ModelHelperResponse struct {
 	Status        string            `json:"status"`
 	ModelPath     string            `json:"model_path"`
+	Presets       []ModelPreset     `json:"presets"`
 	RequiredFiles []string          `json:"required_files"`
 	Files         []ModelFileStatus `json:"files"`
 	Commands      []string          `json:"commands"`

@@ -46,7 +46,7 @@ func TestServerModelHelpers(t *testing.T) {
 	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
 		t.Fatalf("decode: %v", err)
 	}
-	if got.Status != "manual" || got.ModelPath != dir || len(got.RequiredFiles) != 3 || len(got.Commands) == 0 || !bytes.Contains(rr.Body.Bytes(), []byte(dir)) {
+	if got.Status != "manual" || got.ModelPath != dir || len(got.Presets) == 0 || len(got.RequiredFiles) != 3 || len(got.Commands) == 0 || !bytes.Contains(rr.Body.Bytes(), []byte(dir)) {
 		t.Fatalf("unexpected model helpers: %+v", got)
 	}
 	if len(got.Files) != 3 || !got.Files[0].Present || got.Files[1].Present || !got.Files[2].Present {

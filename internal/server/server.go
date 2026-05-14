@@ -141,6 +141,7 @@ func (s *Server) handleModelHelpers(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, protocol.ModelHelperResponse{
 		Status:        "manual",
 		ModelPath:     modelPath,
+		Presets:       modelPresets(),
 		RequiredFiles: required,
 		Files:         modelFileStatuses(modelPath, required),
 		Commands: []string{
@@ -251,6 +252,13 @@ func (s *Server) handleShardExecute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, out)
+}
+
+func modelPresets() []protocol.ModelPreset {
+	return []protocol.ModelPreset{
+		{ID: "smollm2-135m", Name: "SmolLM2 135M", Path: "../go-pherence/models/smollm2-135m", Description: "Small local fixture used by go-exotic parity tests."},
+		{ID: "demo", Name: "Demo placeholder", Path: "../go-pherence/models/demo", Description: "Template path for staging a local go-pherence model."},
+	}
 }
 
 func modelFileStatuses(modelPath string, required []string) []protocol.ModelFileStatus {

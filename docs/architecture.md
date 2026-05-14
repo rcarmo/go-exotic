@@ -156,3 +156,8 @@ Servers can be constructed with `server.WithRegistry(registry)` to have `/routes
 ## CLI route preview
 
 `go-exotic routes -layers N [-json] [-model ID]` exposes the same capability-based route planning as `/routes/preview` for local capabilities. The command emits route metadata only and does not invoke shard execution.
+
+
+## Remote worker maps from routes
+
+`sim.RemoteWorkersFromRoutes` turns validated `router.Route` values into a simulator worker map backed by `cluster.RemoteShardWorker`. This is an explicit orchestration helper for tests and future opt-in flows; the default generation paths do not call it.

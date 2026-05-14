@@ -283,3 +283,9 @@
 - Added `go-exotic routes -layers N [-json] [-model ID]` for planning-only local route previews.
 - Reused the same placement and capability route planning helpers as `/routes/preview`.
 - Added local capability address metadata for route planning and smoke-tested text/JSON CLI output.
+
+## Session 47: Remote worker maps from planned routes
+
+- Added `sim.RemoteWorkersFromRoutes` to explicitly convert planned routes into `cluster.RemoteShardWorker` instances for tests/orchestration.
+- Added httptest coverage that executes a simulator route through the HTTP shard endpoint via remote workers.
+- Added validation for empty route lists, malformed peers, unsupported transports, and conflicting duplicate peer IDs.

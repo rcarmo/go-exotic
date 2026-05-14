@@ -128,3 +128,8 @@
 - Added `Simulator.GenerateTokens`, a synthetic decode loop that runs each step through routed shard execution and projects the final activation to a token.
 - This exercises end-to-end token flow through N simulated shards without claiming numerical parity with `go-pherence` yet.
 - Added tests for multi-step two-shard generation, malformed inputs, cancellation propagation, and projector errors.
+
+## Session 22: Local go-pherence generation parity check
+
+- Added a resource-safe integration test comparing `go-exotic`'s local runtime adapter output against direct full-model `go-pherence` generation on the SmolLM2 fixture when present.
+- This closes the first parity gate for the local adapter. Distributed numerical parity remains a future gate once real shard-layer execution replaces the synthetic simulator.

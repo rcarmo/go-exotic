@@ -68,3 +68,7 @@ The future `LayerShardExecutor` shape uses `protocol.ShardExecutionRequest` and 
 ## Synthetic token generation harness
 
 `Simulator.GenerateTokens` runs a synthetic decode loop through routed in-process shard workers and maps the final activation to a token via a caller-provided projector. This validates orchestration, cancellation, and activation handoff through N shards before real `go-pherence` layer execution or numerical parity checks are attempted.
+
+## Parity status
+
+The current parity gate compares the `go-exotic` local runtime adapter against direct full-model `go-pherence` generation on the small SmolLM2 fixture when available. Synthetic shard simulation validates orchestration only; real distributed numerical parity remains pending until layer-shard execution is implemented.

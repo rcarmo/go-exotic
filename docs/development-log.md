@@ -122,3 +122,9 @@
 - Added `protocol.ActivationPayload`, a flat float32 little-endian activation serialization format for the first shard execution protocol.
 - Added round-trip JSON/base64 coverage and malformed payload validation for encoding, hidden size, and byte length.
 - Kept the format deliberately simple pending batched/paged tensor execution.
+
+## Session 21: Synthetic N-shard token generation harness
+
+- Added `Simulator.GenerateTokens`, a synthetic decode loop that runs each step through routed shard execution and projects the final activation to a token.
+- This exercises end-to-end token flow through N simulated shards without claiming numerical parity with `go-pherence` yet.
+- Added tests for multi-step two-shard generation, malformed inputs, cancellation propagation, and projector errors.

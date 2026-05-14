@@ -64,3 +64,7 @@ The future `LayerShardExecutor` shape uses `protocol.ShardExecutionRequest` and 
 ## Single-host simulation
 
 `internal/sim` executes routed shard requests sequentially in one process. It is the first distributed-inference harness and deliberately uses `protocol.ShardExecutionRequest`/`Response` without any remote transport. Real layer execution and tensor serialization are still pending.
+
+## Synthetic token generation harness
+
+`Simulator.GenerateTokens` runs a synthetic decode loop through routed in-process shard workers and maps the final activation to a token via a caller-provided projector. This validates orchestration, cancellation, and activation handoff through N shards before real `go-pherence` layer execution or numerical parity checks are attempted.

@@ -151,3 +151,9 @@
 - Audited the new local `PherenceLayerExecutor` for mismatches between request validation and loaded model state.
 - Added an explicit check that shard request `totalLayers` matches the loaded model's layer count before validating/executing a range.
 - Split regression coverage so layer-count mismatch and KV-cache shape validation are both exercised distinctly.
+
+## Session 26: Simulator response audit
+
+- Audited simulator shard response validation for route/peer mismatch edges.
+- Added an explicit check that each shard response `PeerID` matches the route peer that executed the shard.
+- Added regression coverage rejecting a worker response that claims a different peer ID.

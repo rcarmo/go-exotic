@@ -80,6 +80,9 @@ func (s *Simulator) Execute(ctx context.Context, routes []router.Route, initial 
 		if err := resp.Validate(); err != nil {
 			return protocol.ShardExecutionResponse{}, fmt.Errorf("route %d response: %w", i, err)
 		}
+		if resp.PeerID != route.Peer.ID {
+			return protocol.ShardExecutionResponse{}, fmt.Errorf("route %d response peer=%q, want %q", i, resp.PeerID, route.Peer.ID)
+		}
 		if resp.SessionID != req.SessionID || resp.RequestID != req.RequestID || resp.Position != req.Position || resp.HiddenSize != req.HiddenSize {
 			return protocol.ShardExecutionResponse{}, fmt.Errorf("route %d response metadata mismatch", i)
 		}

@@ -35,6 +35,20 @@ func TestSimulatorExecute(t *testing.T) {
 	}
 }
 
+func TestSimulatorRejectsResponsePeerMismatch(t *testing.T) {
+	peerA, _ := cluster.LocalPeer("a", "http://127.0.0.1:1", 1)
+	s, err := NewSimulator(map[string]Worker{"a": WorkerFunc(func(ctx context.Context, req protocol.ShardExecutionRequest) (protocol.ShardExecutionResponse, error) {
+		return protocol.ShardExecutionResponse{SessionID: req.SessionID, RequestID: req.RequestID, PeerID: "other", Position: req.Position, HiddenSize: req.HiddenSize, Activation: append([]float32(nil), req.Activation...)}, nil
+	})})
+	if err != nil {
+		t.Fatalf("NewSimulator: %v", err)
+	}
+	_, err = s.Execute(context.Background(), []router.Route{{Peer: peerA, Shard: exotic.Shard{DeviceID: "a", StartLayer: 0, EndLayer: 0}}}, protocol.ShardExecutionRequest{SessionID: "s", RequestID: "r", ModelID: "m", Position: 0, HiddenSize: 1, Activation: []float32{1}}, 1)
+	if err == nil {
+		t.Fatal("accepted response from wrong peer")
+	}
+}
+
 func TestSimulatorRejectsMalformedInputs(t *testing.T) {
 	if _, err := NewSimulator(nil); err == nil {
 		t.Fatal("accepted no workers")

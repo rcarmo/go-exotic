@@ -29,10 +29,11 @@ Implemented:
   - `serve` — local HTTP API skeleton
 - HTTP endpoints:
   - `GET /health`
-  - `GET /ui/status`
+  - `GET /ui/status` — server/API/web bundle status and execution-boundary summary
   - `GET /capabilities`
   - `GET /placement/preview?layers=N&model=...`
-  - `GET /models/helpers?model=...&path=...` — manual model fixture helper commands, read-only required-file status, and model path presets
+  - `GET /models/local?root=...&limit=N` — bounded read-only local model inventory with truncation metadata
+  - `GET /models/helpers?model=...&path=...` — labeled manual model fixture commands, bounded read-only required-file status, and model path presets
   - `GET /routes/preview?layers=N&model=...` — planning-only route preview from advertised capabilities
   - `POST /shards/execute` — gated behind explicit server wiring; disabled by the default CLI server
 - core packages for domain, placement, cluster, routing, runtime, protocol, and server surfaces
@@ -45,7 +46,7 @@ Implemented:
 - single-host real-shard hidden-state and one-token output parity gates
 - disabled-by-default HTTP shard execution bridge with request IDs, context cancellation, timeouts, strict JSON request parsing, and httptest coverage
 - registry-backed and CLI route-preview helpers plus explicit remote-worker maps for tests/orchestration
-- Bun/TypeScript web UI built with bundled Preact and D3 for peers, placement, routes, execution-boundary status, and model-helper commands
+- Bun/TypeScript web UI built with bundled Preact and D3 for peers, placement, routes, execution-boundary status, bounded local model inventory, and labeled model-helper commands
 
 Deferred:
 

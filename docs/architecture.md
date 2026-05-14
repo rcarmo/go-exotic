@@ -36,12 +36,15 @@ The initial cluster transport is **HTTP over LAN**. This is deliberately simpler
 Current HTTP endpoints:
 
 - `GET /health`
+- `GET /ui/status` for server/API/web-bundle status and the execution-boundary summary
 - `GET /capabilities`
+- `GET /models/local?root=...&limit=N` for bounded read-only local model inventory
+- `GET /models/helpers?model=...&path=...` for labeled helper commands and bounded required-file status
 - `GET /placement/preview?layers=N&model=...`
 - `GET /routes/preview?layers=N&model=...`
 - `POST /shards/execute` only when explicitly wired; disabled by default in the CLI server
 
-`serve` is quiet by default and emits structured JSON diagnostics only with `-verbose`. `serve -shard-model /path/to/model` installs a local-development shard worker but does not enable LAN distributed generation.
+`serve` is quiet by default and emits structured JSON diagnostics only with `-verbose`. `serve -shard-model /path/to/model` installs a local-development shard worker but does not enable LAN distributed generation. Dashboard inventory and file-status APIs are read-only and bounded; broad model roots and large file lists return truncation metadata instead of unbounded responses.
 
 ## Current cluster validation
 

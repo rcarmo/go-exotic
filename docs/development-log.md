@@ -510,3 +510,9 @@
 - Audited dashboard persisted numeric settings and found that stale localStorage values above the inventory limit could bypass the UI clamp until edited.
 - Added a bounded number loader and used it for the local model inventory limit so persisted state is clamped on startup.
 - Re-ran focused server/protocol race tests with workspace TMPDIR.
+
+## Session 85: Dashboard API documentation audit
+
+- Audited the dashboard-facing API contract after recent hardening and found README/architecture drift.
+- Updated endpoint documentation for `/ui/status`, `/models/local`, and `/models/helpers` to describe bundle status, bounded inventories, labeled commands, and truncation metadata.
+- Re-ran full checks plus focused server/protocol race tests with workspace TMPDIR.

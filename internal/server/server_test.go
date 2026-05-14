@@ -98,7 +98,7 @@ func TestServerUIStatus(t *testing.T) {
 	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
 		t.Fatalf("decode: %v", err)
 	}
-	if got.Name != "go-exotic" || got.APIVersion == "" || !got.WebUI || len(got.Endpoints) == 0 || got.Boundary == "" {
+	if got.Name != "go-exotic" || got.APIVersion == "" || !got.WebUI || got.StartedAt == "" || got.UptimeSeconds < 0 || len(got.Endpoints) == 0 || got.Boundary == "" {
 		t.Fatalf("unexpected ui status: %+v", got)
 	}
 }

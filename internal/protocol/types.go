@@ -69,11 +69,13 @@ type HealthResponse struct {
 }
 
 type UIStatusResponse struct {
-	Name       string   `json:"name"`
-	APIVersion string   `json:"api_version"`
-	WebUI      bool     `json:"web_ui"`
-	Endpoints  []string `json:"endpoints"`
-	Boundary   string   `json:"boundary"`
+	Name          string   `json:"name"`
+	APIVersion    string   `json:"api_version"`
+	WebUI         bool     `json:"web_ui"`
+	StartedAt     string   `json:"started_at"`
+	UptimeSeconds int64    `json:"uptime_seconds"`
+	Endpoints     []string `json:"endpoints"`
+	Boundary      string   `json:"boundary"`
 }
 
 type CapabilitiesResponse struct {

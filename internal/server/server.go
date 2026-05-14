@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
+	"time"
 
 	"github.com/rcarmo/go-exotic/internal/cluster"
 	"github.com/rcarmo/go-exotic/internal/exotic"
@@ -28,6 +29,7 @@ type Server struct {
 	shardWorker  ShardWorker
 	totalLayers  int
 	webDir       string
+	startedAt    time.Time
 }
 
 type Option func(*Server)
@@ -57,7 +59,7 @@ func New(capabilities []protocol.Capability, opts ...Option) *Server {
 		cap.Metadata = cloneMetadata(cap.Metadata)
 		caps = append(caps, cap)
 	}
-	s := &Server{capabilities: caps}
+	s := &Server{capabilities: caps, startedAt: time.Now().UTC()}
 	for _, opt := range opts {
 		if opt != nil {
 			opt(s)
@@ -127,10 +129,13 @@ func (s *Server) handleUIStatus(w http.ResponseWriter, r *http.Request) {
 	if s.shardWorker != nil && s.totalLayers > 0 {
 		boundary = "local shard execution explicitly wired"
 	}
+	now := time.Now().UTC()
 	writeJSON(w, http.StatusOK, protocol.UIStatusResponse{
-		Name:       "go-exotic",
-		APIVersion: "v1alpha",
-		WebUI:      true,
+		Name:          "go-exotic",
+		APIVersion:    "v1alpha",
+		WebUI:         true,
+		StartedAt:     s.startedAt.Format(time.RFC3339),
+		UptimeSeconds: int64(now.Sub(s.startedAt).Seconds()),
 		Endpoints: []string{
 			"GET /health",
 			"GET /capabilities",

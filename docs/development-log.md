@@ -407,3 +407,9 @@
 - Added `GET /ui/status` to expose a compact read-only server/UI status payload with API version, advertised endpoints, and execution boundary text.
 - Added a dashboard server status card and wired it into global refresh.
 - Added server test coverage for the status payload.
+
+## Session 67: UI status uptime
+
+- Extended `/ui/status` with server start time and uptime seconds.
+- Updated the dashboard server card to show start time and formatted uptime.
+- Covered the new status fields in server tests.

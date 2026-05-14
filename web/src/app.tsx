@@ -76,9 +76,18 @@ function StatusCard({ state }: { state: LoadState<UIStatusResponse> }) {
     {state.data && <>
       <p><strong>{state.data.name}</strong> <span>{state.data.api_version}</span></p>
       <p>{state.data.boundary}</p>
-      <small>{state.data.endpoints.length} API endpoints advertised</small>
+      <small>started {state.data.started_at} · uptime {formatDuration(state.data.uptime_seconds)} · {state.data.endpoints.length} API endpoints advertised</small>
     </>}
   </section>;
+}
+
+function formatDuration(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  if (mins < 1) return `${secs}s`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 1) return `${mins}m ${secs}s`;
+  return `${hours}h ${mins % 60}m`;
 }
 
 function useBoundaryStatus(): LoadState<BoundaryStatus> & { refresh: () => void } {

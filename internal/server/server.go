@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/rcarmo/go-exotic/internal/cluster"
 	"github.com/rcarmo/go-exotic/internal/exotic"
 	"github.com/rcarmo/go-exotic/internal/placement"
 	"github.com/rcarmo/go-exotic/internal/protocol"
@@ -19,11 +20,18 @@ type ShardWorker interface {
 
 type Server struct {
 	capabilities []protocol.Capability
+	registry     *cluster.Registry
 	shardWorker  ShardWorker
 	totalLayers  int
 }
 
 type Option func(*Server)
+
+func WithRegistry(registry *cluster.Registry) Option {
+	return func(s *Server) {
+		s.registry = registry
+	}
+}
 
 func WithShardExecution(worker ShardWorker, totalLayers int) Option {
 	return func(s *Server) {
@@ -103,6 +111,15 @@ func (s *Server) handleRoutesPreview(w http.ResponseWriter, r *http.Request) {
 	layers, err := positiveIntQuery(r, "layers")
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if s.registry != nil {
+		preview, err := router.PreviewFromRegistry(r.Context(), s.registry, r.URL.Query().Get("model"), layers)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		writeJSON(w, http.StatusOK, preview)
 		return
 	}
 	devices := make([]exotic.Device, 0, len(s.capabilities))

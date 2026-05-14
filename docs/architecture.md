@@ -146,3 +146,8 @@ Remaining work is productization rather than transport scaffolding: CLI wiring, 
 ## Registry-backed route previews
 
 `router.PreviewFromRegistry` builds a `protocol.RoutePreview` from the current in-memory `cluster.Registry` snapshot. It converts registered peers to capability DTOs, builds a placement plan, and returns route entries. The function is metadata-only: it does not contact peers and does not call the shard execution endpoint.
+
+
+## Registry-backed HTTP route previews
+
+Servers can be constructed with `server.WithRegistry(registry)` to have `/routes/preview` use the live in-memory peer registry snapshot instead of the static capability list. If no registry is configured, the endpoint preserves the static capability behavior. Registry-backed previews are still metadata-only and do not execute shards.

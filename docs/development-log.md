@@ -270,3 +270,9 @@
 - Added `router.PreviewFromRegistry` to build planning-only route previews from the current in-memory peer registry snapshot.
 - The helper converts peers to capabilities, builds a placement plan, and returns route preview DTOs without contacting peers or executing shards.
 - Added tests for registry-backed previews, stale eviction behavior, malformed inputs, and cancellation.
+
+## Session 45: Registry-backed HTTP route previews
+
+- Added optional `server.WithRegistry` wiring.
+- `/routes/preview` now prefers a configured live registry snapshot and falls back to static capabilities when no registry is provided.
+- Added tests for registry-backed route previews and empty-registry failure behavior.

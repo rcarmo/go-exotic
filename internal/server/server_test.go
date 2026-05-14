@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/rcarmo/go-exotic/internal/cluster"
 	"github.com/rcarmo/go-exotic/internal/exotic"
 	"github.com/rcarmo/go-exotic/internal/protocol"
 )
@@ -78,6 +79,40 @@ func TestServerRoutePreview(t *testing.T) {
 	}
 	if got.ModelID != "test" || got.Layers != 4 || len(got.Routes) != 2 || got.Routes[0].PeerID != "a" || got.Routes[1].PeerID != "b" {
 		t.Fatalf("unexpected route preview: %+v", got)
+	}
+}
+
+func TestServerRoutePreviewFromRegistry(t *testing.T) {
+	registry := cluster.NewRegistry()
+	peerA, _ := cluster.LocalPeer("a", "http://127.0.0.1:1", 1)
+	peerB, _ := cluster.LocalPeer("b", "http://127.0.0.1:2", 1)
+	if err := registry.Upsert(peerB); err != nil {
+		t.Fatal(err)
+	}
+	if err := registry.Upsert(peerA); err != nil {
+		t.Fatal(err)
+	}
+	s := New(nil, WithRegistry(registry))
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/routes/preview?layers=4&model=registry", nil))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", rr.Code, rr.Body.String())
+	}
+	var got protocol.RoutePreview
+	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if got.ModelID != "registry" || len(got.Routes) != 2 || got.Routes[0].PeerID != "a" || got.Routes[1].PeerID != "b" {
+		t.Fatalf("unexpected registry route preview: %+v", got)
+	}
+}
+
+func TestServerRoutePreviewFromRegistryRejectsEmptyRegistry(t *testing.T) {
+	s := New([]protocol.Capability{{PeerID: "fallback", Device: exotic.Device{ID: "fallback", MemoryGB: 1}, Metadata: map[string]string{"address": "http://127.0.0.1:9", "transport": "http"}}}, WithRegistry(cluster.NewRegistry()))
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/routes/preview?layers=1", nil))
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("status=%d want 400", rr.Code)
 	}
 }
 

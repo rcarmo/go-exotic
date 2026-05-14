@@ -43,7 +43,7 @@ function App() {
         <h1>Distributed inference planner</h1>
         <p>Peer capabilities, placement previews, route previews, and model setup helpers. Shard execution remains opt-in.</p>
       </div>
-      <button onClick={() => { caps.refresh(); placement.refresh(); routes.refresh(); }}>Refresh</button>
+      <button onClick={() => { caps.refresh(); boundary.refresh(); localModels.refresh(); helpers.refresh(); placement.refresh(); routes.refresh(); }}>Refresh</button>
     </header>
 
     <section class="controls card">

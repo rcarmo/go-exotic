@@ -391,3 +391,8 @@
 - Added a dashboard model root control for the read-only local fixture inventory.
 - Persisted the model root in localStorage and wired `/models/local?root=...` to rescan that root.
 - Surface scan errors and the active root in the model-helper panel.
+
+## Session 64: Dashboard refresh audit
+
+- Audited the dashboard refresh path after adding boundary, helper, and local model inventory calls.
+- Fixed the global Refresh button so it refreshes peers, execution boundary, model helpers, local inventory, placement, and routes together.

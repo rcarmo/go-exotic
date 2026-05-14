@@ -546,3 +546,8 @@
 - Audited static bundle status reporting for consistency with hardened static asset serving.
 - Centralized static asset validation and reused it for `/ui/status` bundle hashing so symlinked `app.js` is not hashed if it would not be served.
 - Added coverage for symlinked bundle status behavior.
+
+## Session 91: Static regular-file audit
+
+- Audited static asset validation for remaining filesystem node edge cases.
+- Tightened `staticAssetPath` to serve only regular files, keeping directories, symlinks, and other special nodes out of `/static/*` and bundle hashing.

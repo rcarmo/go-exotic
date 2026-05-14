@@ -190,7 +190,7 @@ func (s *Server) staticAssetPath(asset string) (string, bool) {
 	}
 	file := filepath.Join(dir, "static", filepath.FromSlash(asset))
 	info, err := os.Lstat(file)
-	if err != nil || info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
+	if err != nil || !info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0 {
 		return "", false
 	}
 	return file, true

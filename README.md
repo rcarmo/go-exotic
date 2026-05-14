@@ -41,11 +41,12 @@ Implemented:
 - simulator worker adapter for real local layer executors
 - bounded flat f32 activation payload format and shard execution DTOs
 - single-host real-shard hidden-state and one-token output parity gates
-- disabled-by-default HTTP shard execution bridge with request IDs, context cancellation, timeouts, and httptest coverage
+- disabled-by-default HTTP shard execution bridge with request IDs, context cancellation, timeouts, strict JSON request parsing, and httptest coverage
+- registry-backed and CLI route-preview helpers plus explicit remote-worker maps for tests/orchestration
 
 Deferred:
 
-- enabling remote shard execution in the CLI/LAN path
+- enabling routed remote shard execution in the CLI/LAN generation path
 - OpenAI-compatible generation endpoint
 - model download/cache coordination
 - richer tensor activation serialization beyond the initial flat f32 payload
@@ -91,7 +92,7 @@ Every code batch should run:
 make check
 ```
 
-Runtime behavior changes should also run the relevant smoke command (`plan`, `run`, `peers`, or `serve`/`curl`).
+Runtime behavior changes should also run the relevant smoke command (`plan`, `routes`, `run`, `peers`, or `serve`/`curl`).
 
 ## Commit policy
 

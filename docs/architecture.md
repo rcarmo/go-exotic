@@ -15,10 +15,10 @@
 | Domain model | `internal/exotic` | Devices, layer shards, JSON shape, domain validation |
 | Placement | `internal/placement` | Deterministic memory-weighted baseline planner, contiguous coverage validation, JSON placement export |
 | Cluster membership | `internal/cluster` | Peer identity, local capability exchange, heartbeat refresh, in-memory registry, stale-peer eviction |
-| Routing | `internal/router` | Validated route construction from shard plans and peer snapshots; cancellation propagation |
+| Routing | `internal/router` | Validated route construction from shard plans, capability advertisements, and registry snapshots; route preview DTO construction; cancellation propagation |
 | Runtime adapter | `internal/runtime` | Minimal `go-pherence` adapter for metadata, tokenization, local full-model generation, and future shard execution contract |
-| Protocol/API | `internal/protocol`, `internal/server` | DTOs and HTTP skeleton for health, capabilities, and placement previews |
-| CLI | `cmd/go-exotic` | `plan`, `run`, `peers`, and `serve`; distributed generation remains disabled |
+| Protocol/API | `internal/protocol`, `internal/server` | DTOs and HTTP surfaces for health, capabilities, placement previews, route previews, and gated shard execution |
+| CLI | `cmd/go-exotic` | `plan`, `run`, `peers`, `routes`, and `serve`; distributed generation remains disabled by default |
 | Simulation/integration | `internal/sim`, `internal/integration` | In-process routed shard execution harness plus multi-node placement/routing validation |
 
 ## Porting model
@@ -38,12 +38,14 @@ Current HTTP endpoints:
 - `GET /health`
 - `GET /capabilities`
 - `GET /placement/preview?layers=N&model=...`
+- `GET /routes/preview?layers=N&model=...`
+- `POST /shards/execute` only when explicitly wired; disabled by default in the CLI server
 
-`serve` is quiet by default and emits structured JSON diagnostics only with `-verbose`.
+`serve` is quiet by default and emits structured JSON diagnostics only with `-verbose`. `serve -shard-model /path/to/model` installs a local-development shard worker but does not enable LAN distributed generation.
 
 ## Current cluster validation
 
-The first integration test runs multiple in-process peer capabilities through the HTTP placement preview endpoint and validates route construction. Remote shard execution remains disabled.
+Integration coverage runs multiple in-process peer capabilities through HTTP placement and route preview endpoints, validates route construction, and exercises the gated shard endpoint under `httptest`. Remote/LAN generation remains disabled by default.
 
 ## Runtime boundary
 
@@ -53,7 +55,7 @@ The current `internal/runtime.Adapter` supports:
 - tokenization
 - local full-model generation
 
-The future `LayerShardExecutor` shape uses `protocol.ShardExecutionRequest` and `protocol.ShardExecutionResponse`, which carry session/request IDs, explicit layer ranges, positions, hidden size, and activation vectors. `protocol.ActivationPayload` defines the first transport serialization format: flat float32 little-endian bytes with hidden-size metadata. The executor remains intentionally not implemented until KV/state ownership and multi-worker generation are tested.
+`runtime.PherenceLayerExecutor` implements local layer-range execution over `go-pherence/model.ForwardLayer`. `protocol.ShardExecutionRequest` and `protocol.ShardExecutionResponse` carry session/request IDs, explicit layer ranges, positions, hidden size, and activation vectors. `protocol.ActivationPayload` defines the first transport serialization format: flat float32 little-endian bytes with hidden-size metadata.
 
 ## Validation baseline
 
@@ -63,7 +65,7 @@ The future `LayerShardExecutor` shape uses `protocol.ShardExecutionRequest` and 
 
 ## Single-host simulation
 
-`internal/sim` executes routed shard requests sequentially in one process. It is the first distributed-inference harness and deliberately uses `protocol.ShardExecutionRequest`/`Response` without any remote transport. Real layer execution and tensor serialization are still pending.
+`internal/sim` executes routed shard requests sequentially in one process. It can use synthetic workers, local `LayerExecutorWorker` instances, or explicit remote-worker maps backed by `cluster.RemoteShardWorker` in tests/orchestration. Default generation paths do not call the remote-worker helper.
 
 ## Synthetic token generation harness
 
@@ -71,7 +73,7 @@ The future `LayerShardExecutor` shape uses `protocol.ShardExecutionRequest` and 
 
 ## Parity status
 
-The current parity gate compares the `go-exotic` local runtime adapter against direct full-model `go-pherence` generation on the small SmolLM2 fixture when available. Synthetic shard simulation validates orchestration only; real distributed numerical parity remains pending until layer-shard execution is implemented.
+The current parity gate compares the `go-exotic` local runtime adapter against direct full-model `go-pherence` generation on the small SmolLM2 fixture when available. Synthetic shard simulation validates orchestration; local real-shard hidden-state and one-token output parity are covered by fixture-backed tests. Real LAN distributed numerical parity remains future work.
 
 ## Initial plan closeout
 
@@ -126,7 +128,7 @@ Phase 9 has the first remote transport surface in place without enabling LAN dis
 - `cluster.RemoteShardWorker` provides the client-side bridge with context cancellation, optional timeout, and request-ID propagation.
 - HTTP transport tests run entirely under `httptest`; no LAN assumptions are required.
 
-Remaining work is productization rather than transport scaffolding: CLI wiring, LAN peer selection, richer payload formats, and end-to-end networked generation.
+Remaining work is productization rather than transport scaffolding: LAN peer selection, routed generation orchestration, richer payload formats, and end-to-end networked generation.
 
 ## Explicit serve opt-in
 
@@ -161,3 +163,8 @@ Servers can be constructed with `server.WithRegistry(registry)` to have `/routes
 ## Remote worker maps from routes
 
 `sim.RemoteWorkersFromRoutes` turns validated `router.Route` values into a simulator worker map backed by `cluster.RemoteShardWorker`. This is an explicit orchestration helper for tests and future opt-in flows; the default generation paths do not call it.
+
+
+## Documentation audit status
+
+This document was refreshed after the route-preview, registry-backed planning, remote-worker-map, and HTTP parsing audit work. The current boundary is: planning and explicit test/orchestration helpers are implemented; default CLI/LAN distributed generation remains disabled.

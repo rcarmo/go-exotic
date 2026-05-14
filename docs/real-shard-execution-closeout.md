@@ -12,6 +12,8 @@ Status: complete for the current Phase 7–9 plan.
 - Gated HTTP shard endpoint, disabled by default in the CLI server.
 - HTTP activation serialization using `protocol.ActivationPayload` flat f32 payloads.
 - Remote worker client adapter with request ID propagation, context cancellation, and timeout support.
+- Route preview helpers for static capabilities, live registries, and CLI output.
+- Explicit remote-worker-map helper for tests/orchestration from planned routes.
 - `httptest` coverage for the remote worker path before any LAN enablement.
 
 ## Guardrails added during closeout
@@ -23,6 +25,8 @@ Status: complete for the current Phase 7–9 plan.
 - Simulator rejects typed-nil workers.
 - Server rejects request ID header/body mismatches.
 - Remote worker rejects response request ID mismatches.
+- Server rejects trailing JSON values in shard execution requests.
+- CLI-advertised route addresses normalize hostless/wildcard listen addresses to localhost.
 
 ## Current execution boundary
 
@@ -33,7 +37,7 @@ This keeps LAN distributed generation disabled while preserving tested transport
 ## Follow-up work
 
 - Local CLI opt-in wiring is available through `go-exotic serve -shard-model /path/to/model`.
-- LAN peer selection and route construction from live capability registries.
+- LAN peer selection from live/discovered capability registries. Route planning from explicit registries is available, but not wired to LAN discovery.
 - End-to-end networked generation smoke tests across real hosts.
 - Richer activation/tensor payload formats beyond flat f32.
 - OpenAI-compatible generation endpoint once distributed generation is productized.

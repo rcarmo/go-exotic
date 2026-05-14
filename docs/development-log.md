@@ -326,3 +326,10 @@
 - Audited `/shards/execute` request parsing.
 - Tightened the handler to reject trailing JSON values after the request object, preventing ambiguous request bodies from being accepted.
 - Added regression coverage for extra trailing JSON in shard execution requests.
+
+
+## Session 54: Documentation refresh after audit work
+
+- Reviewed README, architecture, and closeout docs after route-preview, registry-backed planning, remote-worker-map, address-normalization, and shard JSON parsing audits.
+- Updated stale architecture sections that still described route preview and layer execution as future-only work.
+- Clarified the current boundary: planning/test orchestration helpers are implemented, while default CLI/LAN distributed generation remains disabled.

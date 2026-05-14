@@ -72,6 +72,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("/static/", s.handleStatic)
 	mux.HandleFunc("/health", s.handleHealth)
 	mux.HandleFunc("/capabilities", s.handleCapabilities)
+	mux.HandleFunc("/models/local", s.handleLocalModels)
 	mux.HandleFunc("/models/helpers", s.handleModelHelpers)
 	mux.HandleFunc("/placement/preview", s.handlePlacementPreview)
 	mux.HandleFunc("/routes/preview", s.handleRoutesPreview)
@@ -122,6 +123,37 @@ func (s *Server) handleCapabilities(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, protocol.CapabilitiesResponse{Capabilities: s.capabilitiesCopy()})
+}
+
+func (s *Server) handleLocalModels(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	root := r.URL.Query().Get("root")
+	if root == "" {
+		root = "../go-pherence/models"
+	}
+	required := []string{"config.json", "tokenizer.json", "*.safetensors"}
+	entries, err := os.ReadDir(root)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	models := make([]protocol.LocalModel, 0)
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		path := filepath.Join(root, entry.Name())
+		files := modelFileStatuses(path, required)
+		complete := true
+		for _, file := range files {
+			complete = complete && file.Present
+		}
+		models = append(models, protocol.LocalModel{ID: entry.Name(), Path: path, Files: files, Complete: complete})
+	}
+	writeJSON(w, http.StatusOK, protocol.LocalModelsResponse{Root: root, Models: models})
 }
 
 func (s *Server) handleModelHelpers(w http.ResponseWriter, r *http.Request) {

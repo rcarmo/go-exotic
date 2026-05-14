@@ -28,6 +28,39 @@ func TestServerServesWebUI(t *testing.T) {
 	}
 }
 
+func TestServerLocalModels(t *testing.T) {
+	root := t.TempDir()
+	complete := filepath.Join(root, "complete")
+	if err := os.Mkdir(complete, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"config.json", "tokenizer.json", "model.safetensors"} {
+		if err := os.WriteFile(filepath.Join(complete, name), []byte("x"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	incomplete := filepath.Join(root, "incomplete")
+	if err := os.Mkdir(incomplete, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(incomplete, "config.json"), []byte("{}"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	s := New(nil)
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/models/local?root="+root, nil))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", rr.Code, rr.Body.String())
+	}
+	var got protocol.LocalModelsResponse
+	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if got.Root != root || len(got.Models) != 2 || !got.Models[0].Complete || got.Models[1].Complete {
+		t.Fatalf("unexpected local models: %+v", got)
+	}
+}
+
 func TestServerModelHelpers(t *testing.T) {
 	dir := t.TempDir()
 	if err := os.WriteFile(filepath.Join(dir, "config.json"), []byte("{}"), 0o644); err != nil {

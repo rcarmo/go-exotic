@@ -1,7 +1,7 @@
 import { render } from "preact";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import * as d3 from "d3";
-import { BoundaryStatus, CapabilityResponse, getJSON, LoadState, ModelHelperResponse, PlacementPreview, probeShardExecution, RoutePreview } from "./api";
+import { BoundaryStatus, CapabilityResponse, getJSON, LoadState, LocalModelsResponse, ModelHelperResponse, PlacementPreview, probeShardExecution, RoutePreview } from "./api";
 import { loadNumber, loadString, saveValue } from "./storage";
 import "./style.css";
 
@@ -29,6 +29,7 @@ function App() {
   const setModelPath = (value: string) => { setModelPathState(value); saveValue("go-exotic.modelPath", value); };
   const caps = useJSON<CapabilityResponse>("/capabilities");
   const boundary = useBoundaryStatus();
+  const localModels = useJSON<LocalModelsResponse>("/models/local");
   const helpers = useJSON<ModelHelperResponse>(`/models/helpers?model=${encodeURIComponent(model)}&path=${encodeURIComponent(modelPath)}`, [model, modelPath]);
   const placement = useJSON<PlacementPreview>(`/placement/preview?layers=${layers}&model=${encodeURIComponent(model)}`, [layers, model]);
   const routes = useJSON<RoutePreview>(`/routes/preview?layers=${layers}&model=${encodeURIComponent(model)}`, [layers, model]);
@@ -52,7 +53,7 @@ function App() {
     <section class="grid">
       <PeersCard state={caps} />
       <BoundaryCard state={boundary} />
-      <ModelHelpers state={helpers} onSelectPreset={(id, path) => { setModel(id); setModelPath(path); }} />
+      <ModelHelpers state={helpers} localModels={localModels} onSelectPreset={(id, path) => { setModel(id); setModelPath(path); }} />
     </section>
 
     <section class="grid wide">
@@ -107,7 +108,7 @@ function BoundaryCard({ state }: { state: LoadState<BoundaryStatus> }) {
 
 const commandLabels = ["Create fixture directory", "List required files", "Local generation smoke", "Planning preview", "Explicit shard-server opt-in"];
 
-function ModelHelpers({ state, onSelectPreset }: { state: LoadState<ModelHelperResponse>; onSelectPreset: (id: string, path: string) => void }) {
+function ModelHelpers({ state, localModels, onSelectPreset }: { state: LoadState<ModelHelperResponse>; localModels: LoadState<LocalModelsResponse>; onSelectPreset: (id: string, path: string) => void }) {
   const commands = (state.data?.commands || []).map((command, i) => ({ label: commandLabels[i] || `Command ${i + 1}`, command }));
   return <section class="card">
     <h2>Model helpers</h2>
@@ -115,6 +116,7 @@ function ModelHelpers({ state, onSelectPreset }: { state: LoadState<ModelHelperR
     {state.loading && <p>Loading model helpers…</p>}
     {state.error && <p class="error">{state.error}</p>}
     {state.data?.presets && <div class="presets">{state.data.presets.map((preset) => <button type="button" key={preset.id} onClick={() => onSelectPreset(preset.id, preset.path)} title={preset.description}>{preset.name}</button>)}</div>}
+    {localModels.data?.models.length ? <div class="local-models"><strong>Local fixtures</strong>{localModels.data.models.map((item) => <button type="button" class={item.complete ? "complete" : "incomplete"} key={item.path} onClick={() => onSelectPreset(item.id, item.path)}>{item.complete ? "✓" : "…"} {item.id}</button>)}</div> : null}
     {state.data?.files ? <ul class="file-status">{state.data.files.map((file) => <li class={file.present ? "present" : "missing"} key={file.pattern}>
       <span>{file.present ? "✓" : "×"}</span> <strong>{file.pattern}</strong> <small>{file.matches?.join(", ") || "not found"}</small>
     </li>)}</ul> : <ol>{["config.json", "tokenizer.json", "*.safetensors"].map((item) => <li>{item}</li>)}</ol>}

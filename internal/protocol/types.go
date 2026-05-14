@@ -43,6 +43,18 @@ type ModelFileStatus struct {
 	Matches []string `json:"matches,omitempty"`
 }
 
+type LocalModel struct {
+	ID       string            `json:"id"`
+	Path     string            `json:"path"`
+	Files    []ModelFileStatus `json:"files"`
+	Complete bool              `json:"complete"`
+}
+
+type LocalModelsResponse struct {
+	Root   string       `json:"root"`
+	Models []LocalModel `json:"models"`
+}
+
 type ModelHelperResponse struct {
 	Status        string            `json:"status"`
 	ModelPath     string            `json:"model_path"`

@@ -379,3 +379,9 @@
 - Added read-only model presets to `/models/helpers`, including the SmolLM2 parity fixture path and a demo placeholder.
 - Updated the dashboard model-helper panel with preset buttons that populate model ID and path controls.
 - Kept presets non-mutating; downloads and fixture writes remain manual.
+
+## Session 62: Local model fixture inventory
+
+- Added `GET /models/local` as a read-only local model fixture inventory endpoint.
+- The endpoint scans model subdirectories for required files and marks each fixture complete/incomplete without downloading or writing anything.
+- Updated the dashboard model-helper panel to show local fixture buttons alongside presets.

@@ -178,3 +178,8 @@ The server serves a small dashboard at `/` plus bundled static assets under `/st
 ## Model helper API
 
 `GET /models/helpers?model=...&path=...` returns manual model fixture setup commands, model path presets, required file names, and read-only file presence status for the dashboard. It is intentionally non-mutating: it does not download models or write files.
+
+
+## Local model inventory API
+
+`GET /models/local?root=...` scans local model subdirectories and returns read-only required-file status for each fixture. It is used by the dashboard to offer quick fixture selection, and it does not download or modify files.

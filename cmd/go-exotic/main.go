@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -187,6 +188,8 @@ func advertiseHTTPAddress(addr string) string {
 	}
 	if strings.HasPrefix(addr, ":") {
 		addr = "127.0.0.1" + addr
+	} else if host, port, err := net.SplitHostPort(addr); err == nil && (host == "" || host == "0.0.0.0" || host == "::" || host == "[::]") {
+		addr = net.JoinHostPort("127.0.0.1", port)
 	}
 	return "http://" + strings.TrimRight(addr, "/")
 }

@@ -6,6 +6,8 @@ func TestAdvertiseHTTPAddress(t *testing.T) {
 	cases := map[string]string{
 		"127.0.0.1:8089":          "http://127.0.0.1:8089",
 		":8089":                   "http://127.0.0.1:8089",
+		"0.0.0.0:8089":            "http://127.0.0.1:8089",
+		"[::]:8089":               "http://127.0.0.1:8089",
 		"http://example:8089/":    "http://example:8089",
 		" https://example:8443/ ": "https://example:8443",
 	}

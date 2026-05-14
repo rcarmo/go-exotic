@@ -314,3 +314,9 @@
 - Audited duplicated capability-to-route-preview planning across CLI, HTTP server, and registry helpers.
 - Added `router.PreviewFromCapabilities` to centralize capability validation, placement, route construction, and preview DTO generation.
 - Reused it from CLI, server, and registry paths with focused coverage.
+
+## Session 52: Wildcard listen address audit
+
+- Audited advertised route-preview addresses for wildcard listen hosts.
+- Normalized `0.0.0.0:PORT` and `[::]:PORT` to `http://127.0.0.1:PORT` in local capability metadata so route previews do not advertise unusable wildcard endpoints.
+- Added command-package regression coverage for wildcard address normalization.

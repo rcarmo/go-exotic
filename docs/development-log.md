@@ -226,3 +226,9 @@
 - Reviewed docs after adding the gated HTTP shard endpoint and remote shard worker.
 - Updated README status to distinguish implemented transport scaffolding from still-disabled CLI/LAN distributed generation.
 - Added a Phase 9 closeout note covering disabled-by-default server behavior, request-ID/timeout guardrails, and remaining productization work.
+
+## Session 38: Real shard execution plan closeout
+
+- Added a dedicated closeout document summarizing completed Phase 7–9 gates, safety guardrails, current execution boundary, and follow-up productization work.
+- Linked the closeout from the README.
+- Re-ran full validation with `make check`.

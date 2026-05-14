@@ -73,7 +73,7 @@ curl 'http://127.0.0.1:8089/placement/preview?layers=4&model=demo'
 
 ## Architecture
 
-See [`docs/architecture.md`](docs/architecture.md).
+See [`docs/architecture.md`](docs/architecture.md). The Phase 7–9 closeout is summarized in [`docs/real-shard-execution-closeout.md`](docs/real-shard-execution-closeout.md).
 
 ## exo reference
 

@@ -116,6 +116,10 @@ func (s *Server) handleShardExecute(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+	if headerID := r.Header.Get("X-Go-Exotic-Request-ID"); headerID != "" && headerID != req.RequestID {
+		writeError(w, http.StatusBadRequest, "request id header mismatch")
+		return
+	}
 	if err := req.Validate(s.totalLayers); err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return

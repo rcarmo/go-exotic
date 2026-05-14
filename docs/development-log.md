@@ -212,3 +212,10 @@
 - Added the first HTTP bridge DTOs for shard execution using `ActivationPayload` instead of JSON float arrays.
 - Added `/shards/execute` behind an explicit `WithShardExecution` server option; default `serve` keeps shard execution disabled and returns 503.
 - Added httptest coverage for disabled-by-default behavior, successful in-process execution, malformed JSON rejection, and HTTP payload round-trips.
+
+## Session 36: Remote shard request IDs and timeouts
+
+- Added `cluster.RemoteShardWorker` as the first HTTP client adapter for `/shards/execute`.
+- The adapter propagates caller context cancellation, supports per-request timeouts, and sends `X-Go-Exotic-Request-ID` alongside the body request ID.
+- The server rejects mismatched request ID headers before worker execution, and the client rejects mismatched response request IDs.
+- Added httptest coverage for successful remote execution, cancellation, timeout, and request-ID mismatch handling.

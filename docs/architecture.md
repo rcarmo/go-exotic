@@ -112,3 +112,7 @@ The integration suite now has a documented SmolLM2 fixture skip path: set `GO_EX
 ## HTTP shard execution surface
 
 `/shards/execute` now exists as a disabled-by-default HTTP bridge. The default CLI server does not install a shard worker, so remote execution returns `503 shard execution disabled`. Tests can enable it with `server.WithShardExecution(worker, totalLayers)`. The wire format uses `protocol.ShardExecutionHTTPBridgeRequest` and `ShardExecutionHTTPBridgeResponse`, carrying activations as `ActivationPayload` flat f32 bytes rather than JSON float arrays. LAN execution remains gated behind future timeout/request-ID/client work.
+
+## Remote shard client guardrails
+
+`cluster.RemoteShardWorker` is the first HTTP client adapter for `/shards/execute`. It serializes requests with `ActivationPayload`, derives HTTP requests from the caller context, optionally wraps calls in a timeout, and sends `X-Go-Exotic-Request-ID`. The server rejects header/body request-ID mismatches, and the client rejects response request-ID mismatches. This is covered with `httptest`; LAN execution is still not enabled by the CLI.

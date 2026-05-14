@@ -96,3 +96,7 @@ Recent audits added guardrails around the real-shard scaffolding:
 - `NewSimulator` rejects typed-nil workers such as `WorkerFunc(nil)` and nil pointer workers.
 
 These checks keep the local real-layer path safe while Phase 8 parity work is still pending.
+
+## Real layer simulation status
+
+A single-host integration test now routes a synthetic two-layer `go-pherence` model across two `LayerExecutorWorker` instances backed by `PherenceLayerExecutor`. This proves the real local `ForwardLayer` path can be driven through routing and simulation. Full numerical parity against direct generation is still pending.

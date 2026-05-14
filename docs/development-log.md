@@ -188,3 +188,9 @@
 - Refreshed project documentation after adding the local `go-pherence` layer-range executor, simulator worker adapter, bounded activation payloads, and simulator audit fixes.
 - Documented current Phase 7 status: real local layer execution is available in-process through `PherenceLayerExecutor` and `LayerExecutorWorker`, while remote HTTP shard execution remains disabled until parity gates pass.
 - Noted protocol and simulator guardrails: bounded flat f32 activation payloads, response peer identity validation, generation position overflow checks, and typed-nil worker rejection.
+
+## Session 32: Single-host real layer executor simulation
+
+- Added an in-process integration test that routes a synthetic two-layer `go-pherence` model across two simulated shard workers backed by `PherenceLayerExecutor`.
+- The test validates that real local `ForwardLayer` execution can be driven through the `router` + `sim.LayerExecutorWorker` path without remote transport.
+- This is a structural real-shard execution gate; numerical parity against full-model generation remains the next Phase 8 item.

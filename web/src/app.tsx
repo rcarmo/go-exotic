@@ -25,14 +25,16 @@ function App() {
   const [model, setModelState] = useState(() => loadString("go-exotic.model", "demo"));
   const [modelPath, setModelPathState] = useState(() => loadString("go-exotic.modelPath", "../go-pherence/models/demo"));
   const [modelRoot, setModelRootState] = useState(() => loadString("go-exotic.modelRoot", "../go-pherence/models"));
+  const [modelLimit, setModelLimitState] = useState(() => loadNumber("go-exotic.modelLimit", 50));
   const setLayers = (value: number) => { const next = Math.max(1, value); setLayersState(next); saveValue("go-exotic.layers", next); };
   const setModel = (value: string) => { setModelState(value); saveValue("go-exotic.model", value); };
   const setModelPath = (value: string) => { setModelPathState(value); saveValue("go-exotic.modelPath", value); };
   const setModelRoot = (value: string) => { setModelRootState(value); saveValue("go-exotic.modelRoot", value); };
+  const setModelLimit = (value: number) => { const next = Math.max(1, Math.min(200, value)); setModelLimitState(next); saveValue("go-exotic.modelLimit", next); };
   const uiStatus = useJSON<UIStatusResponse>("/ui/status");
   const caps = useJSON<CapabilityResponse>("/capabilities");
   const boundary = useBoundaryStatus();
-  const localModels = useJSON<LocalModelsResponse>(`/models/local?root=${encodeURIComponent(modelRoot)}&limit=50`, [modelRoot]);
+  const localModels = useJSON<LocalModelsResponse>(`/models/local?root=${encodeURIComponent(modelRoot)}&limit=${modelLimit}`, [modelRoot, modelLimit]);
   const helpers = useJSON<ModelHelperResponse>(`/models/helpers?model=${encodeURIComponent(model)}&path=${encodeURIComponent(modelPath)}`, [model, modelPath]);
   const placement = useJSON<PlacementPreview>(`/placement/preview?layers=${layers}&model=${encodeURIComponent(model)}`, [layers, model]);
   const routes = useJSON<RoutePreview>(`/routes/preview?layers=${layers}&model=${encodeURIComponent(model)}`, [layers, model]);
@@ -51,6 +53,7 @@ function App() {
       <label>Model ID <input value={model} onInput={(e) => setModel((e.currentTarget as HTMLInputElement).value)} /></label>
       <label>Model path <input value={modelPath} onInput={(e) => setModelPath((e.currentTarget as HTMLInputElement).value)} /></label>
       <label>Model root <input value={modelRoot} onInput={(e) => setModelRoot((e.currentTarget as HTMLInputElement).value)} /></label>
+      <label>Inventory limit <input type="number" min="1" max="200" value={modelLimit} onInput={(e) => setModelLimit(Number((e.currentTarget as HTMLInputElement).value || 1))} /></label>
       <label>Layers <input type="number" min="1" value={layers} onInput={(e) => setLayers(Math.max(1, Number((e.currentTarget as HTMLInputElement).value || 1)))} /></label>
     </section>
 

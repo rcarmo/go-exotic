@@ -455,3 +455,8 @@
 - Added a bounded `limit` query parameter to `/models/local`, capped by the server-side maximum.
 - The dashboard now requests a compact local model inventory (`limit=50`) by default.
 - Added server coverage for malformed limits and explicit truncation limits.
+
+## Session 75: Configurable dashboard inventory limit
+
+- Added a dashboard Inventory limit control for `/models/local` and persisted it in localStorage.
+- Clamped the UI value to the server-supported range (1–200) and wired it into local fixture scans.

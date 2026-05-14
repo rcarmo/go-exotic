@@ -516,3 +516,9 @@
 - Audited the dashboard-facing API contract after recent hardening and found README/architecture drift.
 - Updated endpoint documentation for `/ui/status`, `/models/local`, and `/models/helpers` to describe bundle status, bounded inventories, labeled commands, and truncation metadata.
 - Re-ran full checks plus focused server/protocol race tests with workspace TMPDIR.
+
+## Session 86: Method handling audit
+
+- Audited HTTP method handling across dashboard and shard endpoints.
+- Found that `405 Method Not Allowed` responses did not include the standard `Allow` header.
+- Centralized method-not-allowed responses and added coverage for representative UI/API endpoints.

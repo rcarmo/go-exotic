@@ -36,6 +36,28 @@ func TestServerServesWebUI(t *testing.T) {
 	}
 }
 
+func TestServerMethodNotAllowedIncludesAllowHeader(t *testing.T) {
+	s := New(nil, WithWebDir("../../web"))
+	cases := []struct {
+		path  string
+		allow string
+	}{
+		{path: "/", allow: "GET, HEAD"},
+		{path: "/static/app.js", allow: "GET, HEAD"},
+		{path: "/ui/status", allow: "GET"},
+		{path: "/models/local", allow: "GET"},
+		{path: "/models/helpers", allow: "GET"},
+		{path: "/shards/execute", allow: "POST"},
+	}
+	for _, tc := range cases {
+		rr := httptest.NewRecorder()
+		s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodPut, tc.path, nil))
+		if rr.Code != http.StatusMethodNotAllowed || rr.Header().Get("Allow") != tc.allow {
+			t.Fatalf("%s status=%d allow=%q", tc.path, rr.Code, rr.Header().Get("Allow"))
+		}
+	}
+}
+
 func TestServerLocalModels(t *testing.T) {
 	root := t.TempDir()
 	complete := filepath.Join(root, "z-complete")

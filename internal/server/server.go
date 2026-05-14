@@ -97,7 +97,7 @@ func (s *Server) handleWeb(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.Method != http.MethodGet && r.Method != http.MethodHead {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		writeMethodNotAllowed(w, http.MethodGet, http.MethodHead)
 		return
 	}
 	setWebCacheHeaders(w)
@@ -110,7 +110,7 @@ func (s *Server) handleWeb(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet && r.Method != http.MethodHead {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		writeMethodNotAllowed(w, http.MethodGet, http.MethodHead)
 		return
 	}
 	setWebCacheHeaders(w)
@@ -128,7 +128,7 @@ func setWebCacheHeaders(w http.ResponseWriter) {
 
 func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		writeMethodNotAllowed(w, http.MethodGet)
 		return
 	}
 	writeJSON(w, http.StatusOK, protocol.HealthResponse{Status: "ok"})
@@ -136,7 +136,7 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleUIStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		writeMethodNotAllowed(w, http.MethodGet)
 		return
 	}
 	boundary := "shard execution disabled"
@@ -179,7 +179,7 @@ func (s *Server) webBundleID() string {
 
 func (s *Server) handleCapabilities(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		writeMethodNotAllowed(w, http.MethodGet)
 		return
 	}
 	writeJSON(w, http.StatusOK, protocol.CapabilitiesResponse{Capabilities: s.capabilitiesCopy()})
@@ -187,7 +187,7 @@ func (s *Server) handleCapabilities(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleLocalModels(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		writeMethodNotAllowed(w, http.MethodGet)
 		return
 	}
 	root := r.URL.Query().Get("root")
@@ -237,7 +237,7 @@ func (s *Server) handleLocalModels(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleModelHelpers(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		writeMethodNotAllowed(w, http.MethodGet)
 		return
 	}
 	modelID := r.URL.Query().Get("model")
@@ -269,7 +269,7 @@ func (s *Server) handleModelHelpers(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handlePlacementPreview(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		writeMethodNotAllowed(w, http.MethodGet)
 		return
 	}
 	layers, err := positiveIntQuery(r, "layers")
@@ -291,7 +291,7 @@ func (s *Server) handlePlacementPreview(w http.ResponseWriter, r *http.Request) 
 
 func (s *Server) handleRoutesPreview(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		writeMethodNotAllowed(w, http.MethodGet)
 		return
 	}
 	layers, err := positiveIntQuery(r, "layers")
@@ -318,7 +318,7 @@ func (s *Server) handleRoutesPreview(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleShardExecute(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		writeMethodNotAllowed(w, http.MethodPost)
 		return
 	}
 	if s.shardWorker == nil || s.totalLayers <= 0 {
@@ -440,6 +440,11 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 		// Response has already started; nothing useful to do for this skeleton.
 		return
 	}
+}
+
+func writeMethodNotAllowed(w http.ResponseWriter, methods ...string) {
+	w.Header().Set("Allow", strings.Join(methods, ", "))
+	writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 }
 
 func writeError(w http.ResponseWriter, status int, msg string) {

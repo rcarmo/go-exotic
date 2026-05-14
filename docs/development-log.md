@@ -308,3 +308,9 @@
 - Audited duplicated route-to-preview conversion logic across CLI, server, and registry helpers.
 - Added `router.PreviewFromRoutes` as the single conversion helper and reused it from all call sites.
 - Added focused coverage for route preview conversion.
+
+## Session 51: Capability preview planning audit
+
+- Audited duplicated capability-to-route-preview planning across CLI, HTTP server, and registry helpers.
+- Added `router.PreviewFromCapabilities` to centralize capability validation, placement, route construction, and preview DTO generation.
+- Reused it from CLI, server, and registry paths with focused coverage.

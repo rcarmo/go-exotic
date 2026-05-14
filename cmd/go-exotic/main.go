@@ -83,22 +83,11 @@ func runRoutes(args []string) {
 		fmt.Fprintln(os.Stderr, "usage: go-exotic routes -layers N [-model ID] [-json]")
 		os.Exit(2)
 	}
-	caps := localCapabilities("http://127.0.0.1:0")
-	devices := make([]exotic.Device, 0, len(caps))
-	for _, cap := range caps {
-		devices = append(devices, cap.Device)
-	}
-	plan, err := placement.NewPlan(devices, *layers)
+	preview, err := router.PreviewFromCapabilities(context.Background(), localCapabilities("http://127.0.0.1:0"), *modelID, *layers)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	routes, err := router.BuildRoutesFromCapabilities(context.Background(), caps, plan.Shards, *layers)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-	preview := router.PreviewFromRoutes(*modelID, *layers, routes)
 	if *jsonOut {
 		data, err := json.MarshalIndent(preview, "", "  ")
 		if err != nil {

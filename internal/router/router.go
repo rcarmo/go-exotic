@@ -17,6 +17,27 @@ type Route struct {
 	Shard exotic.Shard
 }
 
+// PreviewFromCapabilities builds a planning-only route preview from capability
+// advertisements. It does not execute shards or contact peers.
+func PreviewFromCapabilities(ctx context.Context, caps []protocol.Capability, modelID string, totalLayers int) (protocol.RoutePreview, error) {
+	if err := ctx.Err(); err != nil {
+		return protocol.RoutePreview{}, err
+	}
+	devices := make([]exotic.Device, 0, len(caps))
+	for _, cap := range caps {
+		devices = append(devices, cap.Device)
+	}
+	plan, err := placement.NewPlan(devices, totalLayers)
+	if err != nil {
+		return protocol.RoutePreview{}, err
+	}
+	routes, err := BuildRoutesFromCapabilities(ctx, caps, plan.Shards, totalLayers)
+	if err != nil {
+		return protocol.RoutePreview{}, err
+	}
+	return PreviewFromRoutes(modelID, totalLayers, routes), nil
+}
+
 // BuildRoutesFromCapabilities converts wire-facing capability advertisements
 // into cluster peers, then validates a route plan. It is planning-only; callers
 // must still explicitly choose whether to execute requests remotely.

@@ -23,6 +23,20 @@ func TestBuildRoutes(t *testing.T) {
 	}
 }
 
+func TestPreviewFromCapabilities(t *testing.T) {
+	peerA, _ := cluster.LocalPeer("a", "http://127.0.0.1:1", 1)
+	peerB, _ := cluster.LocalPeer("b", "http://127.0.0.1:2", 1)
+	capA, _ := peerA.Capability()
+	capB, _ := peerB.Capability()
+	preview, err := PreviewFromCapabilities(context.Background(), []protocol.Capability{capB, capA}, "m", 2)
+	if err != nil {
+		t.Fatalf("PreviewFromCapabilities: %v", err)
+	}
+	if preview.ModelID != "m" || preview.Layers != 2 || len(preview.Routes) != 2 || preview.Routes[0].PeerID != "a" || preview.Routes[1].PeerID != "b" {
+		t.Fatalf("unexpected preview: %+v", preview)
+	}
+}
+
 func TestPreviewFromRoutes(t *testing.T) {
 	peerA, _ := cluster.LocalPeer("a", "http://127.0.0.1:1", 1)
 	preview := PreviewFromRoutes("m", 2, []Route{{Peer: peerA, Shard: exotic.Shard{DeviceID: "a", StartLayer: 0, EndLayer: 1}}})

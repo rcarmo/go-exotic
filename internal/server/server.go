@@ -122,21 +122,12 @@ func (s *Server) handleRoutesPreview(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, preview)
 		return
 	}
-	devices := make([]exotic.Device, 0, len(s.capabilities))
-	for _, cap := range s.capabilities {
-		devices = append(devices, cap.Device)
-	}
-	plan, err := placement.NewPlan(devices, layers)
+	preview, err := router.PreviewFromCapabilities(r.Context(), s.capabilitiesCopy(), r.URL.Query().Get("model"), layers)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	routes, err := router.BuildRoutesFromCapabilities(r.Context(), s.capabilitiesCopy(), plan.Shards, layers)
-	if err != nil {
-		writeError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	writeJSON(w, http.StatusOK, router.PreviewFromRoutes(r.URL.Query().Get("model"), layers, routes))
+	writeJSON(w, http.StatusOK, preview)
 }
 
 func (s *Server) handleShardExecute(w http.ResponseWriter, r *http.Request) {

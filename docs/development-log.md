@@ -276,3 +276,10 @@
 - Added optional `server.WithRegistry` wiring.
 - `/routes/preview` now prefers a configured live registry snapshot and falls back to static capabilities when no registry is provided.
 - Added tests for registry-backed route previews and empty-registry failure behavior.
+
+
+## Session 46: CLI route preview
+
+- Added `go-exotic routes -layers N [-json] [-model ID]` for planning-only local route previews.
+- Reused the same placement and capability route planning helpers as `/routes/preview`.
+- Added local capability address metadata for route planning and smoke-tested text/JSON CLI output.

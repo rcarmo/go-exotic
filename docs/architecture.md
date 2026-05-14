@@ -151,3 +151,8 @@ Remaining work is productization rather than transport scaffolding: CLI wiring, 
 ## Registry-backed HTTP route previews
 
 Servers can be constructed with `server.WithRegistry(registry)` to have `/routes/preview` use the live in-memory peer registry snapshot instead of the static capability list. If no registry is configured, the endpoint preserves the static capability behavior. Registry-backed previews are still metadata-only and do not execute shards.
+
+
+## CLI route preview
+
+`go-exotic routes -layers N [-json] [-model ID]` exposes the same capability-based route planning as `/routes/preview` for local capabilities. The command emits route metadata only and does not invoke shard execution.

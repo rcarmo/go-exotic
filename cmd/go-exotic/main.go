@@ -15,6 +15,7 @@ import (
 	"github.com/rcarmo/go-exotic/internal/exotic"
 	"github.com/rcarmo/go-exotic/internal/placement"
 	"github.com/rcarmo/go-exotic/internal/protocol"
+	"github.com/rcarmo/go-exotic/internal/router"
 	exoticruntime "github.com/rcarmo/go-exotic/internal/runtime"
 	"github.com/rcarmo/go-exotic/internal/server"
 	"github.com/rcarmo/go-exotic/internal/sim"
@@ -31,6 +32,9 @@ func main() {
 			return
 		case "serve":
 			runServe(os.Args[2:])
+			return
+		case "routes":
+			runRoutes(os.Args[2:])
 			return
 		case "peers":
 			runPeers(os.Args[2:])
@@ -66,6 +70,49 @@ func runPlan(args []string) {
 	}
 	for _, shard := range plan.Shards {
 		fmt.Printf("%s: layers %d-%d\n", shard.DeviceID, shard.StartLayer, shard.EndLayer)
+	}
+}
+
+func runRoutes(args []string) {
+	fs := flag.NewFlagSet("routes", flag.ExitOnError)
+	layers := fs.Int("layers", 0, "number of model layers to route")
+	modelID := fs.String("model", "", "model identifier for preview metadata")
+	jsonOut := fs.Bool("json", false, "print route preview as JSON")
+	_ = fs.Parse(args)
+	if *layers <= 0 {
+		fmt.Fprintln(os.Stderr, "usage: go-exotic routes -layers N [-model ID] [-json]")
+		os.Exit(2)
+	}
+	caps := localCapabilities("http://127.0.0.1:0")
+	devices := make([]exotic.Device, 0, len(caps))
+	for _, cap := range caps {
+		devices = append(devices, cap.Device)
+	}
+	plan, err := placement.NewPlan(devices, *layers)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	routes, err := router.BuildRoutesFromCapabilities(context.Background(), caps, plan.Shards, *layers)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	preview := protocol.RoutePreview{ModelID: *modelID, Layers: *layers, Routes: make([]protocol.RouteEntry, 0, len(routes))}
+	for _, route := range routes {
+		preview.Routes = append(preview.Routes, protocol.RouteEntry{PeerID: route.Peer.ID, Address: route.Peer.Address, Transport: route.Peer.Transport, Shard: route.Shard})
+	}
+	if *jsonOut {
+		data, err := json.MarshalIndent(preview, "", "  ")
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		fmt.Println(string(data))
+		return
+	}
+	for _, route := range preview.Routes {
+		fmt.Printf("%s (%s): layers %d-%d via %s\n", route.PeerID, route.Address, route.Shard.StartLayer, route.Shard.EndLayer, route.Transport)
 	}
 }
 
@@ -118,7 +165,7 @@ func runServe(args []string) {
 		serverOpts = append(serverOpts, server.WithShardExecution(worker, model.Config.NumLayers))
 		logger.Info("shard_execution_enabled", "model", *shardModel, "layers", model.Config.NumLayers)
 	}
-	srv := &http.Server{Addr: *addr, Handler: server.New(localCapabilities(), serverOpts...).Handler(), ReadHeaderTimeout: 5 * time.Second}
+	srv := &http.Server{Addr: *addr, Handler: server.New(localCapabilities(advertiseHTTPAddress(*addr)), serverOpts...).Handler(), ReadHeaderTimeout: 5 * time.Second}
 	logger.Info("serve_start", "addr", *addr, "distributed_generation", "disabled", "shard_execution", shardEnabled)
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Error("serve_error", "error", err)
@@ -134,14 +181,25 @@ func newLogger(verbose bool) *slog.Logger {
 	return slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
 }
 
-func localCapabilities() []protocol.Capability {
+func localCapabilities(address ...string) []protocol.Capability {
+	metadata := map[string]string{"mode": "local-only"}
+	if len(address) > 0 && strings.TrimSpace(address[0]) != "" {
+		metadata["address"] = advertiseHTTPAddress(address[0])
+		metadata["transport"] = "http"
+	}
 	return []protocol.Capability{{
-		PeerID: "local",
-		Device: exotic.Device{ID: "local", MemoryGB: 1, Backend: "go-pherence"},
-		Metadata: map[string]string{
-			"mode": "local-only",
-		},
+		PeerID:   "local",
+		Device:   exotic.Device{ID: "local", MemoryGB: 1, Backend: "go-pherence"},
+		Metadata: metadata,
 	}}
+}
+
+func advertiseHTTPAddress(addr string) string {
+	addr = strings.TrimSpace(addr)
+	if strings.HasPrefix(addr, "http://") || strings.HasPrefix(addr, "https://") {
+		return strings.TrimRight(addr, "/")
+	}
+	return "http://" + strings.TrimRight(addr, "/")
 }
 
 func runLocal(args []string) {

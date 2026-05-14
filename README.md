@@ -25,6 +25,7 @@ Implemented:
   - `plan` — placement preview
   - `run` — local `go-pherence` generation smoke
   - `peers` — local capability inspection
+  - `routes` — planning-only local route preview
   - `serve` — local HTTP API skeleton
 - HTTP endpoints:
   - `GET /health`
@@ -58,6 +59,7 @@ make check
 go run ./cmd/go-exotic plan -layers 4
 go run ./cmd/go-exotic plan -layers 4 -json
 go run ./cmd/go-exotic peers -json
+go run ./cmd/go-exotic routes -layers 4 -json
 go run ./cmd/go-exotic run -model ../go-pherence/models/smollm2-135m -prompt "Hello" -tokens 1
 go run ./cmd/go-exotic serve -addr 127.0.0.1:8089
 ```
@@ -112,3 +114,7 @@ go run ./cmd/go-exotic serve -addr 127.0.0.1:8089 -shard-model ../go-pherence/mo
 ```
 
 This wires `server.WithShardExecution` to a local `runtime.PherenceLayerExecutor` and `sim.LayerExecutorWorker`. It does not perform peer discovery, route construction, or end-to-end distributed generation.
+
+### CLI route preview
+
+`go-exotic routes -layers N [-model ID] [-json]` mirrors the route-planning behavior of `/routes/preview` for local capabilities. It is planning-only and does not call `/shards/execute`.

@@ -385,3 +385,9 @@
 - Added `GET /models/local` as a read-only local model fixture inventory endpoint.
 - The endpoint scans model subdirectories for required files and marks each fixture complete/incomplete without downloading or writing anything.
 - Updated the dashboard model-helper panel to show local fixture buttons alongside presets.
+
+## Session 63: Configurable model inventory root
+
+- Added a dashboard model root control for the read-only local fixture inventory.
+- Persisted the model root in localStorage and wired `/models/local?root=...` to rescan that root.
+- Surface scan errors and the active root in the model-helper panel.

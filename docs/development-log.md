@@ -419,3 +419,9 @@
 - Audited generated model helper commands for paths/model IDs with spaces or shell metacharacters.
 - Added simple POSIX shell quoting for generated commands before they are copied from the dashboard.
 - Added server coverage for quoted model IDs and model paths.
+
+## Session 69: Labeled model helper commands
+
+- Removed brittle frontend label-by-position coupling for model helper commands.
+- Added `protocol.ModelCommand` so `/models/helpers` returns each command with its label.
+- Updated the dashboard to render backend-provided labels directly.

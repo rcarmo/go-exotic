@@ -73,7 +73,14 @@ func TestServerModelHelpersQuotesCommands(t *testing.T) {
 	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
 		t.Fatalf("decode: %v", err)
 	}
-	joined := strings.Join(got.Commands, "\n")
+	commands := make([]string, 0, len(got.Commands))
+	for _, command := range got.Commands {
+		if command.Label == "" || command.Command == "" {
+			t.Fatalf("unlabeled command: %+v", command)
+		}
+		commands = append(commands, command.Command)
+	}
+	joined := strings.Join(commands, "\n")
 	if !strings.Contains(joined, "'/tmp/model with space'") || !strings.Contains(joined, "'demo model'") {
 		t.Fatalf("commands are not shell-quoted: %v", got.Commands)
 	}

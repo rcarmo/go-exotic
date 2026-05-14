@@ -212,12 +212,12 @@ func (s *Server) handleModelHelpers(w http.ResponseWriter, r *http.Request) {
 		Presets:       modelPresets(),
 		RequiredFiles: required,
 		Files:         modelFileStatuses(modelPath, required),
-		Commands: []string{
-			"mkdir -p " + quotedPath,
-			"find " + quotedPath + " -maxdepth 1 \\( -name 'config.json' -o -name 'tokenizer.json' -o -name '*.safetensors' \\) -print",
-			"go run ./cmd/go-exotic run -model " + quotedPath + " -prompt \"Hello\" -tokens 1",
-			"go run ./cmd/go-exotic routes -layers 4 -model " + quotedModel + " -json",
-			"go run ./cmd/go-exotic serve -addr 127.0.0.1:8089 -shard-model " + quotedPath,
+		Commands: []protocol.ModelCommand{
+			{Label: "Create fixture directory", Command: "mkdir -p " + quotedPath},
+			{Label: "List required files", Command: "find " + quotedPath + " -maxdepth 1 \\( -name 'config.json' -o -name 'tokenizer.json' -o -name '*.safetensors' \\) -print"},
+			{Label: "Local generation smoke", Command: "go run ./cmd/go-exotic run -model " + quotedPath + " -prompt \"Hello\" -tokens 1"},
+			{Label: "Planning preview", Command: "go run ./cmd/go-exotic routes -layers 4 -model " + quotedModel + " -json"},
+			{Label: "Explicit shard-server opt-in", Command: "go run ./cmd/go-exotic serve -addr 127.0.0.1:8089 -shard-model " + quotedPath},
 		},
 	})
 }

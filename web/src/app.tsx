@@ -133,10 +133,8 @@ function BoundaryCard({ state }: { state: LoadState<BoundaryStatus> }) {
   </section>;
 }
 
-const commandLabels = ["Create fixture directory", "List required files", "Local generation smoke", "Planning preview", "Explicit shard-server opt-in"];
-
 function ModelHelpers({ state, localModels, modelRoot, onSelectPreset }: { state: LoadState<ModelHelperResponse>; localModels: LoadState<LocalModelsResponse>; modelRoot: string; onSelectPreset: (id: string, path: string) => void }) {
-  const commands = (state.data?.commands || []).map((command, i) => ({ label: commandLabels[i] || `Command ${i + 1}`, command }));
+  const commands = state.data?.commands || [];
   return <section class="card">
     <h2>Model helpers</h2>
     <p>Download orchestration is not automated yet. Stage a local go-pherence model fixture, then run the smoke checks below.</p>

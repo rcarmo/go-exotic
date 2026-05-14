@@ -55,13 +55,18 @@ type LocalModelsResponse struct {
 	Models []LocalModel `json:"models"`
 }
 
+type ModelCommand struct {
+	Label   string `json:"label"`
+	Command string `json:"command"`
+}
+
 type ModelHelperResponse struct {
 	Status        string            `json:"status"`
 	ModelPath     string            `json:"model_path"`
 	Presets       []ModelPreset     `json:"presets"`
 	RequiredFiles []string          `json:"required_files"`
 	Files         []ModelFileStatus `json:"files"`
-	Commands      []string          `json:"commands"`
+	Commands      []ModelCommand    `json:"commands"`
 }
 
 type HealthResponse struct {

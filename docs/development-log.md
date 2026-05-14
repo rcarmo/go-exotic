@@ -470,3 +470,8 @@
 
 - Added dashboard summary text for placement and route previews.
 - The UI now shows shard/route count and covered layer count before the D3 timeline and raw JSON.
+
+## Session 78: Dashboard numeric input validation
+
+- Hardened dashboard numeric controls to handle empty or non-finite input without generating invalid API requests.
+- Added visible invalid styling for out-of-range numeric fields.

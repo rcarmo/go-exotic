@@ -176,10 +176,13 @@ function PreviewCard<T extends PlacementPreview | RoutePreview>({ title, state, 
     if (kind === "placement") return (state.data as PlacementPreview).shards.map((s) => ({ id: s.device_id, start: s.start_layer, end: s.end_layer }));
     return (state.data as RoutePreview).routes.map((r) => ({ id: r.peer_id, start: r.shard.start_layer, end: r.shard.end_layer }));
   }, [state.data, kind]);
+  const totalLayers = state.data?.layers || 0;
+  const summary = bars.length > 0 ? `${bars.length} ${kind === "placement" ? "shards" : "routes"} covering ${totalLayers} layers` : "";
   return <section class="card">
     <h2>{title}</h2>
     {state.loading && <p>Loading {title.toLowerCase()}…</p>}
     {state.error && <p class="error">{state.error}</p>}
+    {summary && <p class="preview-summary">{summary}</p>}
     {bars.length > 0 && <Timeline bars={bars} />}
     {state.data && <pre>{JSON.stringify(state.data, null, 2)}</pre>}
   </section>;

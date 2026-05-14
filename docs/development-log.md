@@ -465,3 +465,8 @@
 
 - Added a dashboard summary for local model inventory scans showing complete/total fixture counts.
 - This makes broad or truncated inventories easier to understand at a glance.
+
+## Session 77: Preview summary counts
+
+- Added dashboard summary text for placement and route previews.
+- The UI now shows shard/route count and covered layer count before the D3 timeline and raw JSON.

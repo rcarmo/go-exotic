@@ -16,7 +16,7 @@ export type LoadState<T> = { loading: boolean; data?: T; error?: string };
 export type ModelPreset = { id: string; name: string; path: string; description: string };
 export type ModelFileStatus = { pattern: string; present: boolean; matches?: string[] };
 export type LocalModel = { id: string; path: string; files: ModelFileStatus[]; complete: boolean };
-export type LocalModelsResponse = { root: string; models: LocalModel[] };
+export type LocalModelsResponse = { root: string; models: LocalModel[]; truncated: boolean; limit: number };
 export type ModelCommand = { label: string; command: string };
 export type ModelHelperResponse = { status: string; model_path: string; presets: ModelPreset[]; required_files: string[]; files: ModelFileStatus[]; commands: ModelCommand[] };
 

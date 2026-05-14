@@ -22,6 +22,8 @@ import (
 	"github.com/rcarmo/go-exotic/internal/router"
 )
 
+const maxLocalModelInventory = 200
+
 type ShardWorker interface {
 	ExecuteShard(context.Context, protocol.ShardExecutionRequest) (protocol.ShardExecutionResponse, error)
 }
@@ -196,9 +198,14 @@ func (s *Server) handleLocalModels(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	models := make([]protocol.LocalModel, 0)
+	truncated := false
 	for _, entry := range entries {
 		if !entry.IsDir() {
 			continue
+		}
+		if len(models) >= maxLocalModelInventory {
+			truncated = true
+			break
 		}
 		path := filepath.Join(root, entry.Name())
 		files := modelFileStatuses(path, required)
@@ -209,7 +216,7 @@ func (s *Server) handleLocalModels(w http.ResponseWriter, r *http.Request) {
 		models = append(models, protocol.LocalModel{ID: entry.Name(), Path: path, Files: files, Complete: complete})
 	}
 	sort.Slice(models, func(i, j int) bool { return models[i].ID < models[j].ID })
-	writeJSON(w, http.StatusOK, protocol.LocalModelsResponse{Root: root, Models: models})
+	writeJSON(w, http.StatusOK, protocol.LocalModelsResponse{Root: root, Models: models, Truncated: truncated, Limit: maxLocalModelInventory})
 }
 
 func (s *Server) handleModelHelpers(w http.ResponseWriter, r *http.Request) {

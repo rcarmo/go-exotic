@@ -437,3 +437,9 @@
 - Added explicit `Cache-Control: no-cache` headers for the dashboard HTML and static bundle responses.
 - This avoids stale browser assets while the web bundle currently uses stable filenames (`app.js`, `app.css`).
 - Added server coverage for the cache headers.
+
+## Session 72: Bounded local model inventory
+
+- Bounded `/models/local` to return at most 200 model directories so accidentally broad roots do not flood the dashboard.
+- Added truncation metadata to the response and a dashboard warning when the inventory is truncated.
+- Added server coverage for truncation behavior.

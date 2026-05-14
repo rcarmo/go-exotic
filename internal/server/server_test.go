@@ -3,6 +3,7 @@ package server
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -63,8 +64,30 @@ func TestServerLocalModels(t *testing.T) {
 	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
 		t.Fatalf("decode: %v", err)
 	}
-	if got.Root != root || len(got.Models) != 2 || got.Models[0].ID != "a-incomplete" || got.Models[1].ID != "z-complete" || got.Models[0].Complete || !got.Models[1].Complete {
+	if got.Root != root || got.Limit != maxLocalModelInventory || got.Truncated || len(got.Models) != 2 || got.Models[0].ID != "a-incomplete" || got.Models[1].ID != "z-complete" || got.Models[0].Complete || !got.Models[1].Complete {
 		t.Fatalf("unexpected local models: %+v", got)
+	}
+}
+
+func TestServerLocalModelsTruncatesLargeInventory(t *testing.T) {
+	root := t.TempDir()
+	for i := 0; i < maxLocalModelInventory+1; i++ {
+		if err := os.Mkdir(filepath.Join(root, fmt.Sprintf("model-%03d", i)), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	s := New(nil)
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/models/local?root="+root, nil))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", rr.Code, rr.Body.String())
+	}
+	var got protocol.LocalModelsResponse
+	if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if !got.Truncated || got.Limit != maxLocalModelInventory || len(got.Models) != maxLocalModelInventory {
+		t.Fatalf("unexpected truncation response: %+v", got)
 	}
 }
 

@@ -51,8 +51,10 @@ type LocalModel struct {
 }
 
 type LocalModelsResponse struct {
-	Root   string       `json:"root"`
-	Models []LocalModel `json:"models"`
+	Root      string       `json:"root"`
+	Models    []LocalModel `json:"models"`
+	Truncated bool         `json:"truncated"`
+	Limit     int          `json:"limit"`
 }
 
 type ModelCommand struct {

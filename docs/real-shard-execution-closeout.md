@@ -26,14 +26,14 @@ Status: complete for the current Phase 7–9 plan.
 
 ## Current execution boundary
 
-The default CLI server still does not enable remote shard execution. `/shards/execute` returns `503 shard execution disabled` unless a caller explicitly constructs a server with `server.WithShardExecution`.
+The default CLI server still does not enable remote shard execution. `/shards/execute` returns `503 shard execution disabled` unless a caller explicitly constructs a server with `server.WithShardExecution` or starts `go-exotic serve` with the local-development `-shard-model` opt-in.
 
 This keeps LAN distributed generation disabled while preserving tested transport scaffolding for future work.
 
 ## Follow-up work
 
-- CLI/LAN opt-in wiring for shard execution workers.
-- Peer selection and route construction from live capability registries.
+- Local CLI opt-in wiring is available through `go-exotic serve -shard-model /path/to/model`.
+- LAN peer selection and route construction from live capability registries.
 - End-to-end networked generation smoke tests across real hosts.
 - Richer activation/tensor payload formats beyond flat f32.
 - OpenAI-compatible generation endpoint once distributed generation is productized.

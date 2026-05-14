@@ -240,3 +240,9 @@
 - The default server still leaves `/shards/execute` disabled.
 - The opt-in path loads a `go-pherence` model, constructs `PherenceLayerExecutor`, wraps it with `LayerExecutorWorker`, and passes it to `server.WithShardExecution`.
 - Smoke-checked invalid model path handling and re-ran `make check`.
+
+
+## Session 40: Phase 10 closeout alignment
+
+- Re-ran `make check` after the explicit shard serve opt-in work.
+- Updated the real-shard closeout document so follow-up work distinguishes completed local CLI opt-in from still-pending LAN peer selection and routed generation.

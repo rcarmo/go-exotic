@@ -2,7 +2,7 @@ import { render } from "preact";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import * as d3 from "d3";
 import { BoundaryStatus, CapabilityResponse, getJSON, LoadState, LocalModelsResponse, ModelHelperResponse, PlacementPreview, probeShardExecution, RoutePreview, UIStatusResponse } from "./api";
-import { loadNumber, loadString, saveValue } from "./storage";
+import { loadBoundedNumber, loadNumber, loadString, saveValue } from "./storage";
 import "./style.css";
 
 function useJSON<T>(path: string): LoadState<T> & { refresh: () => void } {
@@ -24,7 +24,7 @@ function App() {
   const [model, setModelState] = useState(() => loadString("go-exotic.model", "demo"));
   const [modelPath, setModelPathState] = useState(() => loadString("go-exotic.modelPath", "../go-pherence/models/demo"));
   const [modelRoot, setModelRootState] = useState(() => loadString("go-exotic.modelRoot", "../go-pherence/models"));
-  const [modelLimit, setModelLimitState] = useState(() => loadNumber("go-exotic.modelLimit", 50));
+  const [modelLimit, setModelLimitState] = useState(() => loadBoundedNumber("go-exotic.modelLimit", 50, 1, 200));
   const setLayers = (value: number) => { const next = Number.isFinite(value) ? Math.max(1, value) : 1; setLayersState(next); saveValue("go-exotic.layers", next); };
   const setModel = (value: string) => { setModelState(value); saveValue("go-exotic.model", value); };
   const setModelPath = (value: string) => { setModelPathState(value); saveValue("go-exotic.modelPath", value); };

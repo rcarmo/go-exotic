@@ -504,3 +504,9 @@
 - Replaced whole-path globbing with literal directory enumeration plus `filepath.Match` against base names.
 - Avoided serializing per-file match limits unless a match list is actually truncated.
 - Verified the server/protocol race tests using a workspace `TMPDIR` to avoid the container noexec `/tmp` restriction.
+
+## Session 84: Persisted numeric state audit
+
+- Audited dashboard persisted numeric settings and found that stale localStorage values above the inventory limit could bypass the UI clamp until edited.
+- Added a bounded number loader and used it for the local model inventory limit so persisted state is clamped on startup.
+- Re-ran focused server/protocol race tests with workspace TMPDIR.

@@ -568,3 +568,9 @@
 
 - Audited `/ui/status` endpoint metadata and found the advertised endpoint list omitted the dashboard root, static asset surface, and `/ui/status` itself.
 - Updated the endpoint list to match the actual dashboard/API surface and added coverage for these entries.
+
+## Session 95: Dashboard empty JSON audit
+
+- Audited dashboard fetch handling after the previous malformed-JSON fix.
+- Found that successful empty responses still became `undefined` data even though all dashboard API calls expect JSON objects.
+- `getJSON` now reports successful empty bodies as API errors instead of silently updating UI state with missing data.

@@ -48,6 +48,7 @@ export async function getJSON<T>(path: string): Promise<T> {
   const value = parsed.ok ? parsed.value as { error?: string } | undefined : undefined;
   if (!res.ok) throw new APIError(res.status, res.statusText, value?.error || text || "request failed");
   if (!parsed.ok) throw new APIError(res.status, res.statusText, "invalid JSON response");
+  if (parsed.value === undefined) throw new APIError(res.status, res.statusText, "empty JSON response");
   return parsed.value as T;
 }
 

@@ -563,3 +563,8 @@
 - Audited dashboard HTML serving for consistency with hardened static asset rules.
 - Added shared regular-file validation for served files and now reject missing, directory, special, or symlinked `index.html` before `ServeFile`.
 - Added coverage for symlinked dashboard index rejection.
+
+## Session 94: UI status endpoint audit
+
+- Audited `/ui/status` endpoint metadata and found the advertised endpoint list omitted the dashboard root, static asset surface, and `/ui/status` itself.
+- Updated the endpoint list to match the actual dashboard/API surface and added coverage for these entries.

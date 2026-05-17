@@ -335,6 +335,11 @@ func TestServerUIStatus(t *testing.T) {
 	if got.Name != "go-exotic" || got.APIVersion == "" || !got.WebUI || got.StartedAt == "" || got.UptimeSeconds < 0 || got.WebBundle == "" || len(got.Endpoints) == 0 || got.Boundary == "" {
 		t.Fatalf("unexpected ui status: %+v", got)
 	}
+	for _, endpoint := range []string{"GET /", "GET /static/*", "GET /ui/status"} {
+		if !stringSliceContains(got.Endpoints, endpoint) {
+			t.Fatalf("ui status did not advertise %s: %+v", endpoint, got.Endpoints)
+		}
+	}
 }
 
 func TestServerHealthCapabilitiesAndPlacement(t *testing.T) {
@@ -369,6 +374,15 @@ func TestServerHealthCapabilitiesAndPlacement(t *testing.T) {
 	if preview.Layers != 4 || len(preview.Shards) != 1 || preview.Shards[0].EndLayer != 3 {
 		t.Fatalf("unexpected preview: %+v", preview)
 	}
+}
+
+func stringSliceContains(values []string, want string) bool {
+	for _, value := range values {
+		if value == want {
+			return true
+		}
+	}
+	return false
 }
 
 func TestServerCopiesCapabilityMetadata(t *testing.T) {

@@ -156,7 +156,10 @@ func (s *Server) handleUIStatus(w http.ResponseWriter, r *http.Request) {
 		UptimeSeconds: int64(now.Sub(s.startedAt).Seconds()),
 		WebBundle:     s.webBundleID(),
 		Endpoints: []string{
+			"GET /",
+			"GET /static/*",
 			"GET /health",
+			"GET /ui/status",
 			"GET /capabilities",
 			"GET /models/local",
 			"GET /models/helpers",

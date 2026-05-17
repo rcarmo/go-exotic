@@ -102,12 +102,13 @@ func (s *Server) handleWeb(w http.ResponseWriter, r *http.Request) {
 		writeMethodNotAllowed(w, http.MethodGet, http.MethodHead)
 		return
 	}
-	setWebCacheHeaders(w)
-	dir := s.webDir
-	if dir == "" {
-		dir = "web"
+	file, ok := s.webIndexPath()
+	if !ok {
+		http.NotFound(w, r)
+		return
 	}
-	http.ServeFile(w, r, filepath.Join(dir, "index.html"))
+	setWebCacheHeaders(w)
+	http.ServeFile(w, r, file)
 }
 
 func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
@@ -167,6 +168,14 @@ func (s *Server) handleUIStatus(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (s *Server) webIndexPath() (string, bool) {
+	dir := s.webDir
+	if dir == "" {
+		dir = "web"
+	}
+	return regularFilePath(filepath.Join(dir, "index.html"))
+}
+
 func (s *Server) webBundleID() string {
 	file, ok := s.staticAssetPath("app.js")
 	if !ok {
@@ -188,7 +197,10 @@ func (s *Server) staticAssetPath(asset string) (string, bool) {
 	if dir == "" {
 		dir = "web"
 	}
-	file := filepath.Join(dir, "static", filepath.FromSlash(asset))
+	return regularFilePath(filepath.Join(dir, "static", filepath.FromSlash(asset)))
+}
+
+func regularFilePath(file string) (string, bool) {
 	info, err := os.Lstat(file)
 	if err != nil || !info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0 {
 		return "", false

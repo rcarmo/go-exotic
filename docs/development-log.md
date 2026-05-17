@@ -557,3 +557,9 @@
 - Audited read-only model file status scans for filesystem node edge cases.
 - Tightened required-file matching so directories, symlinks, and other non-regular nodes named like `config.json` or `*.safetensors` do not count as present model files.
 - Added coverage for non-regular required-file matches.
+
+## Session 93: Web index serving audit
+
+- Audited dashboard HTML serving for consistency with hardened static asset rules.
+- Added shared regular-file validation for served files and now reject missing, directory, special, or symlinked `index.html` before `ServeFile`.
+- Added coverage for symlinked dashboard index rejection.

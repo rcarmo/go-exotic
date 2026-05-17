@@ -16,6 +16,22 @@ import (
 	"github.com/rcarmo/go-exotic/internal/protocol"
 )
 
+func TestServerRejectsSymlinkedWebIndex(t *testing.T) {
+	webDir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(webDir, "target.html"), []byte("secret"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(filepath.Join(webDir, "target.html"), filepath.Join(webDir, "index.html")); err != nil {
+		t.Skipf("symlink unavailable: %v", err)
+	}
+	s := New(nil, WithWebDir(webDir))
+	rr := httptest.NewRecorder()
+	s.Handler().ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/", nil))
+	if rr.Code != http.StatusNotFound {
+		t.Fatalf("status=%d body=%s", rr.Code, rr.Body.String())
+	}
+}
+
 func TestServerServesWebUI(t *testing.T) {
 	s := New(nil, WithWebDir("../../web"))
 	rr := httptest.NewRecorder()

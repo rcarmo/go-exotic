@@ -1,5 +1,7 @@
 # go-exotic
 
+![go-exotic icon](docs/icon-256.png)
+
 `go-exotic` is a Go experiment inspired by [`exo`](https://github.com/exo-explore/exo). It explores deterministic layer placement, shard routing, and local inference execution using [`go-pherence`](https://github.com/rcarmo/go-pherence) as the runtime.
 
 ## Features
